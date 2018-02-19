@@ -2,6 +2,7 @@ package org.folio.circulation.api;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.io.IOUtils;
 import org.folio.circulation.CirculationVerticle;
 import org.folio.circulation.api.fakes.FakeOkapi;
 import org.folio.circulation.api.loans.*;
@@ -18,6 +19,7 @@ import org.junit.runners.Suite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -180,7 +182,12 @@ public class APITestSuite {
     throws InterruptedException,
     ExecutionException,
     TimeoutException,
-    MalformedURLException {
+    IOException {
+
+    String loanSchema = IOUtils.toString(
+      APITestSuite.class.getResourceAsStream("/api-definition/loan.json"), "UTF-8");
+
+    System.out.println(loanSchema);
 
     useOkapiForStorage = Boolean.parseBoolean(
       System.getProperty("use.okapi.storage.requests", "false"));

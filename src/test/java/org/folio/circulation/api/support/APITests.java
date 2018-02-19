@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.UUID;
@@ -56,7 +57,7 @@ public abstract class APITests {
     throws InterruptedException,
     ExecutionException,
     TimeoutException,
-    MalformedURLException {
+    IOException {
 
     if(APITestSuite.isNotInitialised()) {
       System.out.println("Running test on own, initialising suite manually");
