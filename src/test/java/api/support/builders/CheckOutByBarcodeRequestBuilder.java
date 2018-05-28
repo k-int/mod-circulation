@@ -37,17 +37,25 @@ public class CheckOutByBarcodeRequestBuilder extends JsonBuilder implements Buil
   }
 
   public CheckOutByBarcodeRequestBuilder forItem(IndividualResource item) {
+    return forItemBarcode(getBarcode(item));
+  }
+
+  public CheckOutByBarcodeRequestBuilder forItemBarcode(String itemBarcode) {
     return new CheckOutByBarcodeRequestBuilder(
-      getBarcode(item),
+      itemBarcode,
       this.userBarcode,
       this.proxyBarcode,
       this.loanDate);
   }
 
   public CheckOutByBarcodeRequestBuilder to(IndividualResource loanee) {
+    return toUserBarcode(getBarcode(loanee));
+  }
+
+  public CheckOutByBarcodeRequestBuilder toUserBarcode(String userBarcode) {
     return new CheckOutByBarcodeRequestBuilder(
       this.itemBarcode,
-      getBarcode(loanee),
+      userBarcode,
       this.proxyBarcode,
       this.loanDate);
   }

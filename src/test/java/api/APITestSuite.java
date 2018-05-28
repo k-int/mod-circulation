@@ -68,9 +68,9 @@ import java.util.function.Consumer;
 public class APITestSuite {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  public static final String TENANT_ID = "test_tenant";
-  public static final String USER_ID = "79ff2a8b-d9c3-5b39-ad4a-0a84025ab085";
-  public static final String TOKEN = "eyJhbGciOiJIUzUxMiJ9eyJzdWIiOiJhZG1pbiIsInVzZXJfaWQiOiI3OWZmMmE4Yi1kOWMzLTViMzktYWQ0YS0wYTg0MDI1YWIwODUiLCJ0ZW5hbnQiOiJ0ZXN0X3RlbmFudCJ9BShwfHcNClt5ZXJ8ImQTMQtAM1sQEnhsfWNmXGsYVDpuaDN3RVQ9";
+  public static final String TENANT_ID = "diku";
+  public static final String USER_ID = null; //"32830283-e112-5add-80db-67dc362cce84";
+  public static final String TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkaWt1X2FkbWluIiwidXNlcl9pZCI6IjMyODMwMjgzLWUxMTItNWFkZC04MGRiLTY3ZGMzNjJjY2U4NCIsInRlbmFudCI6ImRpa3UifQ.apjrXhdag9exlafQeJqE6EcGQSAM284lCSI4ibPZbtJY06bDGJzfDApDO23T_Uvggy-0KlKwsiDmnXvsAJprBg";
   public static final String REQUEST_ID = createFakeRequestId();
 
   private static VertxAssistant vertxAssistant;
@@ -208,7 +208,7 @@ public class APITestSuite {
     MalformedURLException {
 
     useOkapiForStorage = Boolean.parseBoolean(
-      System.getProperty("use.okapi.storage.requests", "false"));
+      System.getProperty("use.okapi.storage.requests", "true"));
 
     useOkapiForInitialRequests = Boolean.parseBoolean(
       System.getProperty("use.okapi.initial.requests", "false"));
@@ -239,14 +239,14 @@ public class APITestSuite {
     fakeOkapiDeploymentId = fakeStorageModuleDeployed.get(10, TimeUnit.SECONDS);
     circulationModuleDeploymentId = circulationModuleDeployed.get(10, TimeUnit.SECONDS);
 
-    createMaterialTypes();
-    createLoanTypes();
-    createLocations();
-    createContributorNameTypes();
-    createInstanceTypes();
-    createGroups();
-    createUsers();
-    createLoanPolicies();
+//    createMaterialTypes();
+//    createLoanTypes();
+//    createLocations();
+//    createContributorNameTypes();
+//    createInstanceTypes();
+//    createGroups();
+//    createUsers();
+//    createLoanPolicies();
 
     initialised = true;
   }
@@ -263,22 +263,22 @@ public class APITestSuite {
     OkapiHttpClient client = APITestSuite.createClient(exception ->
       log.error("Requests to delete all for clean up failed:", exception));
 
-    ResourceClient.forRequests(client).deleteAll();
-    ResourceClient.forLoans(client).deleteAll();
-
-    ResourceClient.forItems(client).deleteAll();
-    ResourceClient.forHoldings(client).deleteAll();
-    ResourceClient.forInstances(client).deleteAll();
-
-    ResourceClient.forUsers(client).deleteAllIndividually();
-    deleteGroups();
-
-    deleteMaterialTypes();
-    deleteLoanTypes();
-    deleteLocations();
-    deleteContributorTypes();
-    deleteInstanceTypes();
-    deleteLoanPolicies();
+//    ResourceClient.forRequests(client).deleteAll();
+//    ResourceClient.forLoans(client).deleteAll();
+//
+//    ResourceClient.forItems(client).deleteAll();
+//    ResourceClient.forHoldings(client).deleteAll();
+//    ResourceClient.forInstances(client).deleteAll();
+//
+//    ResourceClient.forUsers(client).deleteAllIndividually();
+//    deleteGroups();
+//
+//    deleteMaterialTypes();
+//    deleteLoanTypes();
+//    deleteLocations();
+//    deleteContributorTypes();
+//    deleteInstanceTypes();
+//    deleteLoanPolicies();
 
     CompletableFuture<Void> circulationModuleUndeployed =
       vertxAssistant.undeployVerticle(circulationModuleDeploymentId);
@@ -305,7 +305,10 @@ public class APITestSuite {
   public static URL okapiUrl() {
     try {
       if (useOkapiForStorage) {
-        return new URL("http://localhost:9130");
+//        return new URL("http://localhost:9130");
+
+        return new URL("http://folio-testing-backend01.aws.indexdata.com:9130");
+
       } else {
         return new URL(FakeOkapi.getAddress());
       }

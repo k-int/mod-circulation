@@ -87,20 +87,20 @@ public abstract class APITests {
     ExecutionException,
     TimeoutException {
 
-    requestsClient.deleteAll();
-    loansClient.deleteAll();
-
-    itemsClient.deleteAll();
-    holdingsClient.deleteAll();
-    instancesClient.deleteAll();
-
-    usersClient.deleteAllIndividually();
-
-    APITestSuite.createUsers();
-
-    if(initialiseLoanRules) {
-      useDefaultRollingPolicyLoanRules();
-    }
+//    requestsClient.deleteAll();
+//    loansClient.deleteAll();
+//
+//    itemsClient.deleteAll();
+//    holdingsClient.deleteAll();
+//    instancesClient.deleteAll();
+//
+//    usersClient.deleteAllIndividually();
+//
+//    APITestSuite.createUsers();
+//
+//    if(initialiseLoanRules) {
+//      useDefaultRollingPolicyLoanRules();
+//    }
   }
 
   @AfterClass
@@ -123,17 +123,17 @@ public abstract class APITests {
     TimeoutException,
     ExecutionException {
 
-    for (UUID policyId : policiesToDelete) {
-      loanPolicyClient.delete(policyId);
-    }
-
-    policiesToDelete.clear();
-
-    for (UUID scheduleId : schedulesToDelete) {
-      fixedDueDateScheduleClient.delete(scheduleId);
-    }
-
-    schedulesToDelete.clear();
+//    for (UUID policyId : policiesToDelete) {
+//      loanPolicyClient.delete(policyId);
+//    }
+//
+//    policiesToDelete.clear();
+//
+//    for (UUID scheduleId : schedulesToDelete) {
+//      fixedDueDateScheduleClient.delete(scheduleId);
+//    }
+//
+//    schedulesToDelete.clear();
   }
 
   //Needs to be done each time as some tests manipulate the rules
