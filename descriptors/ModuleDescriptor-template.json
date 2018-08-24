@@ -3,6 +3,21 @@
   "name": "Circulation Module",
   "provides": [
     {
+      "id": "loan-anonymization",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/circulation/loans/anonymize/{userId}",
+          "permissionsRequired": [
+            "circulation.loan-anonymization.post"
+          ]
+        }
+      ]
+    },
+    {
       "id": "circulation",
       "version": "3.5",
       "handlers": [

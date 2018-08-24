@@ -34,6 +34,7 @@ public class CirculationVerticle extends AbstractVerticle {
     new LoanCollectionResource(client).register(router);
     new RequestCollectionResource(client).register(router);
     new RequestQueueResource(client).register(router);
+    new AnonymizationResource(client).register(router);
 
     new LoanRulesResource         ("/circulation/loan-rules", client)
       .register(router);
