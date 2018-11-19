@@ -421,7 +421,8 @@ public class FakeStorageModule {
 
   private void trackQuery(RoutingContext routingContext, String query) {
     if(query != null) {
-      queries.add(routingContext.request().uri());
+      queries.add(String.format("%s %s",
+        routingContext.request().method(), routingContext.request().uri()));
     }
   }
 }
