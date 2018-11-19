@@ -1,8 +1,9 @@
 package api.support.fakes;
 
+import static java.util.Collections.synchronizedSet;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +36,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 public class FakeStorageModule {
-  private static final Set<String> queries = Collections.synchronizedSet(new HashSet<>());
+  private static final Set<String> queries = synchronizedSet(new HashSet<>());
 
   private final String rootPath;
   private final String collectionPropertyName;
@@ -232,9 +233,7 @@ public class FakeStorageModule {
 
     System.out.println(String.format("Handling %s", routingContext.request().uri()));
 
-    if(query != null) {
-      queries.add(String.format("%s?%s", routingContext.request().path(), query));
-    }
+    trackQuery(routingContext, query);
 
     Map<String, JsonObject> resourcesForTenant = getResourcesForTenant(context);
 
@@ -417,6 +416,12 @@ public class FakeStorageModule {
 
     if(errors.isEmpty()) {
       routingContext.next();
+    }
+  }
+
+  private void trackQuery(RoutingContext routingContext, String query) {
+    if(query != null) {
+      queries.add(String.format("%s?%s", routingContext.request().path(), query));
     }
   }
 }
