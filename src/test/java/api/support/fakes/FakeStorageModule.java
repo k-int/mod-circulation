@@ -27,6 +27,7 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import api.APITestSuite;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -421,8 +422,11 @@ public class FakeStorageModule {
 
   private void trackQuery(RoutingContext routingContext, String query) {
     if(query != null) {
-      queries.add(String.format("%s %s",
-        routingContext.request().method(), routingContext.request().uri()));
+      queries.add(formattedRequest(routingContext.request()));
     }
+  }
+
+  private String formattedRequest(HttpServerRequest request) {
+    return String.format("%s %s", request.method(), request.uri());
   }
 }
