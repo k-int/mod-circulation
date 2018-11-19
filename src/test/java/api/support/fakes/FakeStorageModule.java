@@ -1,14 +1,10 @@
 package api.support.fakes;
 
-import static java.util.Collections.synchronizedSet;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,7 +23,6 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import api.APITestSuite;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -37,7 +32,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 public class FakeStorageModule {
-  private static final Set<String> queries = synchronizedSet(new HashSet<>());
+  private static final HttpRequestTracker requestTracker = new HttpRequestTracker();
 
   private final String rootPath;
   private final String collectionPropertyName;
@@ -51,7 +46,7 @@ public class FakeStorageModule {
   private final String changeMetadataPropertyName = "metadata";
 
   public static Stream<String> getQueries() {
-    return queries.stream();
+    return requestTracker.getRequestStream();
   }
 
   FakeStorageModule(
@@ -234,7 +229,7 @@ public class FakeStorageModule {
 
     System.out.println(String.format("Handling %s", routingContext.request().uri()));
 
-    trackQuery(routingContext, query);
+    requestTracker.trackQuery(routingContext, query, this);
 
     Map<String, JsonObject> resourcesForTenant = getResourcesForTenant(context);
 
@@ -420,13 +415,4 @@ public class FakeStorageModule {
     }
   }
 
-  private void trackQuery(RoutingContext routingContext, String query) {
-    if(query != null) {
-      queries.add(formattedRequest(routingContext.request()));
-    }
-  }
-
-  private String formattedRequest(HttpServerRequest request) {
-    return String.format("%s %s", request.method(), request.uri());
-  }
 }
