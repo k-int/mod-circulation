@@ -103,42 +103,42 @@ public class LoansFixture {
     loansClient.replace(loanId, renewedLoan);
   }
 
-  public void checkIn(IndividualResource loan)
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
+//  public void checkIn(IndividualResource loan)
+//    throws MalformedURLException,
+//    InterruptedException,
+//    ExecutionException,
+//    TimeoutException {
+//
+//    checkInLoan(loan.getId());
+//  }
 
-    checkInLoan(loan.getId());
-  }
+//  private void checkInLoan(UUID loanId)
+//    throws MalformedURLException,
+//    InterruptedException,
+//    ExecutionException,
+//    TimeoutException {
+//
+//    checkInLoan(loanId, DateTime.now(), UUID.randomUUID());
+//  }
 
-  private void checkInLoan(UUID loanId)
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    checkInLoan(loanId, DateTime.now(), UUID.randomUUID());
-  }
-
-  private void checkInLoan(UUID loanId, DateTime now, UUID servicePoint)
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    Response getResponse = loansClient.getById(loanId);
-
-    //TODO: Should also have a return date
-    JsonObject closedLoan = getResponse.getJson().copy();
-
-    write(closedLoan, "status", new JsonObject().put("name", "Closed"));
-    write(closedLoan, "action", "checkedin");
-    write(closedLoan, "returnDate", now);
-    write(closedLoan, "checkinServicePointId", servicePoint);
-
-    loansClient.replace(loanId, closedLoan);
-  }
+//  private void checkInLoan(UUID loanId, DateTime now, UUID servicePoint)
+//    throws MalformedURLException,
+//    InterruptedException,
+//    ExecutionException,
+//    TimeoutException {
+//
+//    Response getResponse = loansClient.getById(loanId);
+//
+//    //TODO: Should also have a return date
+//    JsonObject closedLoan = getResponse.getJson().copy();
+//
+//    write(closedLoan, "status", new JsonObject().put("name", "Closed"));
+//    write(closedLoan, "action", "checkedin");
+//    write(closedLoan, "returnDate", now);
+//    write(closedLoan, "checkinServicePointId", servicePoint);
+//
+//    loansClient.replace(loanId, closedLoan);
+//  }
 
   public Response attemptCheckOut(
     IndividualResource item,
