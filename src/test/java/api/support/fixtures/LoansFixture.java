@@ -7,6 +7,7 @@ import static api.support.http.InterfaceUrls.checkOutByBarcodeUrl;
 import static api.support.http.InterfaceUrls.loansUrl;
 import static api.support.http.InterfaceUrls.renewByBarcodeUrl;
 import static api.support.http.InterfaceUrls.renewByIdUrl;
+import static org.folio.circulation.support.JsonPropertyWriter.write;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 
@@ -116,13 +117,24 @@ public class LoansFixture {
     ExecutionException,
     TimeoutException {
 
+    checkInLoan(loanId, DateTime.now(), UUID.randomUUID());
+  }
+
+  public void checkInLoan(UUID loanId, DateTime now, UUID servicePoint)
+    throws MalformedURLException,
+    InterruptedException,
+    ExecutionException,
+    TimeoutException {
+
     Response getResponse = loansClient.getById(loanId);
 
     //TODO: Should also have a return date
-    JsonObject closedLoan = getResponse.getJson().copy()
-      .put("status", new JsonObject().put("name", "Closed"))
-      .put("action", "checkedin")
-      .put("checkinServicePointId", UUID.randomUUID().toString());
+    JsonObject closedLoan = getResponse.getJson().copy();
+
+    write(closedLoan, "status", new JsonObject().put("name", "Closed"));
+    write(closedLoan, "action", "checkedin");
+    write(closedLoan, "returnDate", now);
+    write(closedLoan, "checkinServicePointId", servicePoint);
 
     loansClient.replace(loanId, closedLoan);
   }
