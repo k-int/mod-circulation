@@ -3,6 +3,7 @@ package api.support.fixtures;
 import static api.support.RestAssuredClient.from;
 import static api.support.RestAssuredClient.post;
 import static api.support.http.AdditionalHttpStatusCodes.UNPROCESSABLE_ENTITY;
+import static api.support.http.InterfaceUrls.checkInByBarcodeUrl;
 import static api.support.http.InterfaceUrls.checkOutByBarcodeUrl;
 import static api.support.http.InterfaceUrls.loansUrl;
 import static api.support.http.InterfaceUrls.renewByBarcodeUrl;
@@ -187,7 +188,6 @@ public class LoansFixture {
   }
 
   public IndividualResource checkOutByBarcode(CheckOutByBarcodeRequestBuilder builder) {
-
     JsonObject request = builder.create();
 
     return new IndividualResource(
@@ -267,5 +267,21 @@ public class LoansFixture {
 
     return from(post(request, renewByIdUrl(),
       422, "renewal-by-id-request"));
+  }
+
+  public IndividualResource checkInByBarcode(
+    IndividualResource item,
+    DateTime checkInDate,
+    UUID servicePointId) {
+
+    final JsonObject checkInRequest = new JsonObject();
+
+    write(checkInRequest, "itemBarcode", item.getJson().getString("barcode"));
+    write(checkInRequest, "checkInDate", checkInDate);
+    write(checkInRequest, "servicePointId", servicePointId);
+
+    return new IndividualResource(
+      from(post(checkInRequest, checkInByBarcodeUrl(), 200,
+        "check-in-by-barcode-request")));
   }
 }

@@ -38,7 +38,7 @@
         }
       },
       "loanDate": "2017-01-14T19:14:36Z",
-      "returnDate": "2017-01-16T09:15:23Z",
+      "checkInDate": "2017-01-16T09:15:23Z",
       "status": {
         "name": "Closed"
       },

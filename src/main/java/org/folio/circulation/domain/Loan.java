@@ -1,7 +1,9 @@
 package org.folio.circulation.domain;
 
+import static org.folio.circulation.domain.representations.LoanProperties.ACTION;
 import static org.folio.circulation.domain.representations.LoanProperties.CHECKIN_SERVICE_POINT_ID;
 import static org.folio.circulation.domain.representations.LoanProperties.DUE_DATE;
+import static org.folio.circulation.domain.representations.LoanProperties.RETURN_DATE;
 import static org.folio.circulation.domain.representations.LoanProperties.STATUS;
 import static org.folio.circulation.domain.representations.LoanProperties.USER_ID;
 import static org.folio.circulation.support.HttpResult.failed;
@@ -13,6 +15,7 @@ import static org.folio.circulation.support.JsonPropertyWriter.write;
 import static org.folio.circulation.support.ValidationErrorFailure.failure;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.folio.circulation.domain.representations.LoanProperties;
@@ -86,7 +89,7 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
   }
 
   private void changeAction(String action) {
-    representation.put(LoanProperties.ACTION, action);
+    representation.put(ACTION, action);
   }
 
   private void changeStatus(String status) {
@@ -218,8 +221,8 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
     if (!loan.containsKey(LoanProperties.STATUS)) {
       loan.put(LoanProperties.STATUS, new JsonObject().put("name", "Open"));
 
-      if (!loan.containsKey(LoanProperties.ACTION)) {
-        loan.put(LoanProperties.ACTION, "checkedout");
+      if (!loan.containsKey(ACTION)) {
+        loan.put(ACTION, "checkedout");
       }
     }
   }
@@ -234,5 +237,14 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
 
   private String getCheckinServicePointId() {
     return checkinServicePointId;
+  }
+
+  public Loan checkIn(DateTime returnDate, UUID servicePoint) {
+    write(representation, STATUS, new JsonObject().put("name", "Closed"));
+    write(representation, RETURN_DATE, returnDate);
+    write(representation, ACTION, "checkedin");
+    write(representation, CHECKIN_SERVICE_POINT_ID, servicePoint);
+
+    return this;
   }
 }

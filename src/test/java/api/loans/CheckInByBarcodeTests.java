@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.folio.circulation.support.http.client.IndividualResource;
-import org.folio.circulation.support.http.client.Response;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
@@ -35,35 +34,33 @@ public class CheckInByBarcodeTests extends APITests {
 
     final IndividualResource loan = loansFixture.checkOut(nod, james, loanDate);
 
-    loansFixture.checkInLoan(loan.getId(),
+    final IndividualResource updatedLoan = loansFixture.checkInByBarcode(nod,
       new DateTime(2018, 3, 5, 14, 23, 41, DateTimeZone.UTC),
       checkinServicePointId);
 
-    Response updatedLoanResponse = loansClient.getById(loan.getId());
+    JsonObject loanRepresentation = updatedLoan.getJson();
 
-    JsonObject updatedLoan = updatedLoanResponse.getJson();
-
-    assertThat(updatedLoan.getString("userId"), is(james.getId().toString()));
+    assertThat(loanRepresentation.getString("userId"), is(james.getId().toString()));
 
     assertThat("Should have return date",
-      updatedLoan.getString("returnDate"), is("2018-03-05T14:23:41.000Z"));
+      loanRepresentation.getString("returnDate"), is("2018-03-05T14:23:41.000Z"));
 
     assertThat("status is not closed",
-      updatedLoan.getJsonObject("status").getString("name"), is("Closed"));
+      loanRepresentation.getJsonObject("status").getString("name"), is("Closed"));
 
     assertThat("action is not checkedin",
-      updatedLoan.getString("action"), is("checkedin"));
+      loanRepresentation.getString("action"), is("checkedin"));
 
     assertThat("title is taken from item",
-      updatedLoan.getJsonObject("item").getString("title"),
+      loanRepresentation.getJsonObject("item").getString("title"),
       is("Nod"));
 
     assertThat("barcode is taken from item",
-      updatedLoan.getJsonObject("item").getString("barcode"),
+      loanRepresentation.getJsonObject("item").getString("barcode"),
       is("565578437802"));
 
     assertThat("Should not have snapshot of item status, as current status is included",
-      updatedLoan.containsKey("itemStatus"), is(false));
+      loanRepresentation.containsKey("itemStatus"), is(false));
 
     JsonObject updatedNod = itemsClient.getById(nod.getId()).getJson();
 

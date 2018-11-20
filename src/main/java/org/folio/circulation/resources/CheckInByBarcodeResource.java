@@ -3,7 +3,7 @@ package org.folio.circulation.resources;
 import java.util.concurrent.CompletableFuture;
 
 import org.folio.circulation.domain.Loan;
-import org.folio.circulation.domain.LoanRepository;
+import org.folio.circulation.domain.OpenLoanFinder;
 import org.folio.circulation.domain.representations.CheckInByBarcodeRequest;
 import org.folio.circulation.support.HttpResult;
 
@@ -18,10 +18,10 @@ public class CheckInByBarcodeResource extends CheckInResource {
   @Override
   protected CompletableFuture<HttpResult<Loan>> findLoan(
     JsonObject request,
-    LoanRepository loanRepository) {
+    OpenLoanFinder loanFinder) {
 
     return CheckInByBarcodeRequest.from(request)
-      .after(loanRepository::findOpenLoanByBarcode);
+      .after(loanFinder::findByItemBarcode);
   }
 
 }
