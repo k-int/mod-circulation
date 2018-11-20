@@ -1,22 +1,24 @@
 package api.requests.scenarios;
 
-import api.support.APITests;
-import org.folio.circulation.support.http.client.IndividualResource;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import java.net.MalformedURLException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
 import static api.support.builders.ItemBuilder.AWAITING_PICKUP;
 import static api.support.builders.RequestBuilder.OPEN_AWAITING_PICKUP;
 import static api.support.builders.RequestBuilder.OPEN_NOT_YET_FILLED;
 import static api.support.matchers.ItemStatusCodeMatcher.hasItemStatus;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
+
+import java.net.MalformedURLException;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import org.folio.circulation.support.http.client.IndividualResource;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import api.support.APITests;
 
 public class MultipleOutOfOrderRequestsTests extends APITests {
   @Ignore("Disabled since introducing position in queue, " +
@@ -41,7 +43,7 @@ public class MultipleOutOfOrderRequestsTests extends APITests {
     IndividualResource oldestRequestByJessica = requestsFixture.placeHoldShelfRequest(
       smallAngryPlanet, jessica, new DateTime(2017, 7, 22, 10, 22, 54, DateTimeZone.UTC));
 
-    loansFixture.checkIn(loanToJames);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     oldestRequestByJessica = requestsClient.get(oldestRequestByJessica);
 

@@ -1,18 +1,21 @@
 package api.requests;
 
-import api.support.APITests;
-import api.support.builders.RequestBuilder;
-import api.support.builders.UserBuilder;
-import io.vertx.core.json.JsonObject;
-import org.junit.Test;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.junit.MatcherAssert.assertThat;
 
 import java.net.MalformedURLException;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.junit.MatcherAssert.assertThat;
+import org.folio.circulation.support.http.client.IndividualResource;
+import org.joda.time.DateTime;
+import org.junit.Test;
+
+import api.support.APITests;
+import api.support.builders.RequestBuilder;
+import api.support.builders.UserBuilder;
+import io.vertx.core.json.JsonObject;
 
 
 public class RequestsAPILoanHistoryTests extends APITests {
@@ -106,11 +109,12 @@ public class RequestsAPILoanHistoryTests extends APITests {
 
     UUID id = UUID.randomUUID();
 
-    UUID itemId = itemsFixture.basedUponSmallAngryPlanet().getId();
+    final IndividualResource smallAngryPlanet = itemsFixture.basedUponSmallAngryPlanet();
+    UUID itemId = smallAngryPlanet.getId();
 
     UUID closedLoanId = loansFixture.checkOutItem(itemId).getId();
 
-    loansFixture.checkInLoan(closedLoanId);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     loansFixture.checkOutItem(itemId).getId();
 
@@ -139,11 +143,12 @@ public class RequestsAPILoanHistoryTests extends APITests {
 
     UUID id = UUID.randomUUID();
 
-    UUID itemId = itemsFixture.basedUponSmallAngryPlanet().getId();
+    final IndividualResource smallAngryPlanet = itemsFixture.basedUponSmallAngryPlanet();
+    UUID itemId = smallAngryPlanet.getId();
 
     UUID closedLoanId = loansFixture.checkOutItem(itemId).getId();
 
-    loansFixture.checkInLoan(closedLoanId);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     loansFixture.checkOutItem(itemId).getId();
 

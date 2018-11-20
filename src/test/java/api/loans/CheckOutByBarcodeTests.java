@@ -450,7 +450,7 @@ public class CheckOutByBarcodeTests extends APITests {
     IndividualResource requestByJessica = requestsFixture.placeHoldShelfRequest(
       smallAngryPlanet, jessica, new DateTime(2017, 7, 22, 10, 22, 54, DateTimeZone.UTC));
 
-    loansFixture.checkIn(loanToJames);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     Response response = loansFixture.attemptCheckOutByBarcode(smallAngryPlanet, rebecca);
 
@@ -485,7 +485,7 @@ public class CheckOutByBarcodeTests extends APITests {
     IndividualResource requestByJessica = requestsFixture.placeHoldShelfRequest(
       smallAngryPlanet, jessica, new DateTime(2017, 7, 22, 10, 22, 54, DateTimeZone.UTC));
 
-    loansFixture.checkIn(loanToJames);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     loansFixture.checkOutByBarcode(smallAngryPlanet, jessica);
 

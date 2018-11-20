@@ -112,7 +112,7 @@ public class LoansFixture {
     checkInLoan(loan.getId());
   }
 
-  public void checkInLoan(UUID loanId)
+  private void checkInLoan(UUID loanId)
     throws MalformedURLException,
     InterruptedException,
     ExecutionException,
@@ -121,7 +121,7 @@ public class LoansFixture {
     checkInLoan(loanId, DateTime.now(), UUID.randomUUID());
   }
 
-  public void checkInLoan(UUID loanId, DateTime now, UUID servicePoint)
+  private void checkInLoan(UUID loanId, DateTime now, UUID servicePoint)
     throws MalformedURLException,
     InterruptedException,
     ExecutionException,
@@ -274,9 +274,17 @@ public class LoansFixture {
     DateTime checkInDate,
     UUID servicePointId) {
 
+    return checkInByBarcode(
+      item.getJson().getString("barcode"), checkInDate, servicePointId);
+  }
+
+  private IndividualResource checkInByBarcode(
+    String itemBarcode, DateTime checkInDate,
+    UUID servicePointId) {
+
     final JsonObject checkInRequest = new JsonObject();
 
-    write(checkInRequest, "itemBarcode", item.getJson().getString("barcode"));
+    write(checkInRequest, "itemBarcode", itemBarcode);
     write(checkInRequest, "checkInDate", checkInDate);
     write(checkInRequest, "servicePointId", servicePointId);
 

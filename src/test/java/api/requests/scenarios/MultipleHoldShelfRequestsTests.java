@@ -1,8 +1,22 @@
 package api.requests.scenarios;
 
-import api.support.APITests;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
+import static api.support.builders.ItemBuilder.AWAITING_PICKUP;
+import static api.support.builders.RequestBuilder.CLOSED_FILLED;
+import static api.support.builders.RequestBuilder.OPEN_AWAITING_PICKUP;
+import static api.support.builders.RequestBuilder.OPEN_NOT_YET_FILLED;
+import static api.support.matchers.ItemStatusCodeMatcher.hasItemStatus;
+import static api.support.matchers.ValidationErrorMatchers.hasErrorWith;
+import static api.support.matchers.ValidationErrorMatchers.hasMessage;
+import static api.support.matchers.ValidationErrorMatchers.hasParameter;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.junit.MatcherAssert.assertThat;
+
+import java.net.MalformedURLException;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
 import org.folio.circulation.support.http.client.IndividualResource;
 import org.folio.circulation.support.http.client.Response;
 import org.joda.time.DateTime;
@@ -10,17 +24,9 @@ import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.net.MalformedURLException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-import static api.support.builders.ItemBuilder.AWAITING_PICKUP;
-import static api.support.builders.RequestBuilder.*;
-import static api.support.matchers.ItemStatusCodeMatcher.hasItemStatus;
-import static api.support.matchers.ValidationErrorMatchers.*;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.junit.MatcherAssert.assertThat;
+import api.support.APITests;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 
 @RunWith(JUnitParamsRunner.class)
 public class MultipleHoldShelfRequestsTests extends APITests {
@@ -45,7 +51,7 @@ public class MultipleHoldShelfRequestsTests extends APITests {
     IndividualResource requestBySteve = requestsFixture.placeHoldShelfRequest(
       smallAngryPlanet, steve, new DateTime(2018, 1, 10, 15, 34, 21, DateTimeZone.UTC));
 
-    loansFixture.checkIn(loanToJames);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     requestByJessica = requestsClient.get(requestByJessica);
 
@@ -87,7 +93,7 @@ public class MultipleHoldShelfRequestsTests extends APITests {
     IndividualResource requestBySteve = requestsFixture.placeHoldShelfRequest(
       smallAngryPlanet, steve, new DateTime(2018, 1, 10, 15, 34, 21, DateTimeZone.UTC), requestType);
 
-    loansFixture.checkIn(loanToJames);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     loansFixture.checkOut(smallAngryPlanet, jessica);
 
@@ -124,11 +130,11 @@ public class MultipleHoldShelfRequestsTests extends APITests {
     IndividualResource requestBySteve = requestsFixture.placeHoldShelfRequest(
       smallAngryPlanet, steve, new DateTime(2018, 1, 10, 15, 34, 21, DateTimeZone.UTC));
 
-    loansFixture.checkIn(loanToJames);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     IndividualResource loanToJessica = loansFixture.checkOut(smallAngryPlanet, jessica);
 
-    loansFixture.checkIn(loanToJessica);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     requestByJessica = requestsClient.get(requestByJessica);
 
@@ -164,7 +170,7 @@ public class MultipleHoldShelfRequestsTests extends APITests {
     IndividualResource requestBySteve = requestsFixture.placeHoldShelfRequest(
       smallAngryPlanet, steve, new DateTime(2018, 1, 10, 15, 34, 21, DateTimeZone.UTC));
 
-    loansFixture.checkIn(loanToJames);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     Response response = loansFixture.attemptCheckOut(smallAngryPlanet, rebecca);
 
@@ -207,7 +213,7 @@ public class MultipleHoldShelfRequestsTests extends APITests {
     IndividualResource requestBySteve = requestsFixture.placeHoldShelfRequest(
       smallAngryPlanet, steve, new DateTime(2018, 1, 10, 15, 34, 21, DateTimeZone.UTC));
 
-    loansFixture.checkIn(loanToJames);
+    loansFixture.checkInByBarcode(smallAngryPlanet, DateTime.now(), UUID.randomUUID());
 
     Response response = loansFixture.attemptCheckOut(smallAngryPlanet, steve);
 
