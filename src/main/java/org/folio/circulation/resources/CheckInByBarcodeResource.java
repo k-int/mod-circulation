@@ -60,6 +60,9 @@ public class CheckInByBarcodeResource extends Resource {
         loan -> requestQueueRepository.get(loan.getItemId()), mapToRelatedRecords()))
       .thenComposeAsync(result -> result.after(requestQueueUpdate::onCheckIn))
       .thenComposeAsync(result -> result.after(updateItem::onLoanUpdate))
+      //Second loan update needed in order to update the item status
+      // (may create second action history entry)
+      .thenComposeAsync(result -> result.after(loanRepository::updateLoan))
       .thenApply(result -> result.map(LoanAndRelatedRecords::getLoan))
       .thenApply(result -> result.map(loanRepresentation::extendedLoan))
       .thenApply(CheckInByBarcodeResponse::from)
