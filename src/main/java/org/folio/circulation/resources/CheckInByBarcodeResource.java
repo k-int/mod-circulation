@@ -1,5 +1,6 @@
 package org.folio.circulation.resources;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
 import org.folio.circulation.domain.Loan;
@@ -55,11 +56,7 @@ public class CheckInByBarcodeResource extends Resource {
     final HttpResult<CheckInByBarcodeRequest> checkInRequestResult
       = CheckInByBarcodeRequest.from(routingContext.getBodyAsJson());
 
-    checkInRequestResult
-      .after(loanRepository::findOpenLoanByBarcode)
-      .thenApply(loanResult -> loanResult.combineToResult(checkInRequestResult,
-        loanCheckInService::checkIn))
-      .thenComposeAsync(result -> result.after(loanRepository::updateLoan))
+    checkInLoan(checkInRequestResult, loanRepository, loanCheckInService)
       .thenComposeAsync(loanResult -> loanResult.combineAfter(
         loan -> requestQueueRepository.get(loan.getItemId()), mapToRelatedRecords()))
       .thenComposeAsync(result -> result.after(requestQueueUpdate::onCheckIn))
@@ -69,6 +66,18 @@ public class CheckInByBarcodeResource extends Resource {
       .thenApply(result -> result.map(loanRepresentation::extendedLoan))
       .thenApply(CheckInByBarcodeResponse::from)
       .thenAccept(result -> result.writeTo(routingContext.response()));
+  }
+
+  private CompletableFuture<HttpResult<Loan>> checkInLoan(
+    HttpResult<CheckInByBarcodeRequest> checkInRequestResult,
+    LoanRepository loanRepository,
+    LoanCheckInService loanCheckInService) {
+
+    return checkInRequestResult
+      .after(loanRepository::findOpenLoanByBarcode)
+      .thenApply(loanResult -> loanResult.combineToResult(checkInRequestResult,
+        loanCheckInService::checkIn))
+      .thenComposeAsync(result -> result.after(loanRepository::updateLoan));
   }
 
   private BiFunction<Loan, RequestQueue, LoanAndRelatedRecords> mapToRelatedRecords() {
