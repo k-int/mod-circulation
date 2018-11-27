@@ -1,18 +1,23 @@
 package org.folio.circulation.domain;
 
-import io.vertx.core.json.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.folio.circulation.support.JsonPropertyWriter.write;
+import static org.folio.circulation.support.JsonPropertyWriter.writeNamedObject;
 
 import java.lang.invoke.MethodHandles;
 
-import static org.folio.circulation.support.JsonPropertyWriter.write;
-import static org.folio.circulation.support.JsonPropertyWriter.writeNamedObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.vertx.core.json.JsonObject;
 
 public class LoanRepresentation {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   public JsonObject extendedLoan(Loan loan) {
+    if(loan == null) {
+      return null;
+    }
+
     return extendedLoan(loan.asJson(), loan.getItem());
   }
 
