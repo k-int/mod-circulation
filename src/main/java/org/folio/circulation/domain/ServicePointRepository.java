@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -26,10 +27,16 @@ public class ServicePointRepository {
   public ServicePointRepository(Clients clients) {
     servicePointsStorageClient = clients.servicePointsStorage();
   }
-  
-  
-  public CompletableFuture<HttpResult<ServicePoint>> getServicePointById(String id) {
 
+  public CompletableFuture<HttpResult<ServicePoint>> getServicePointById(UUID id) {
+    if(id == null) {
+      return CompletableFuture.completedFuture(HttpResult.succeeded(null));
+    }
+
+    return getServicePointById(id.toString());
+  }
+
+  CompletableFuture<HttpResult<ServicePoint>> getServicePointById(String id) {
     return FetchSingleRecord.<ServicePoint>forRecord(SERVICE_POINT_TYPE)
         .using(servicePointsStorageClient)
         .mapTo(ServicePoint::new)
