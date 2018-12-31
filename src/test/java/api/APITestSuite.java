@@ -303,9 +303,7 @@ public class APITestSuite {
     final CompletableFuture<Void> fakeOkapiUndeployed;
 
     if (!useOkapiForStorage) {
-      log.info("Queries performed: " + FakeStorageModule.getQueries()
-        .sorted()
-        .collect(Collectors.joining("\n")));
+      outputCQLQueryRequestsPerformedAgainstFakes();
 
       fakeOkapiUndeployed = vertxAssistant.undeployVerticle(fakeOkapiDeploymentId);
     } else {
@@ -318,6 +316,12 @@ public class APITestSuite {
     CompletableFuture<Void> stopped = vertxAssistant.stop();
 
     stopped.get(5, TimeUnit.SECONDS);
+  }
+
+  private static void outputCQLQueryRequestsPerformedAgainstFakes() {
+    log.info("Queries performed: " + FakeStorageModule.getQueries()
+      .sorted()
+      .collect(Collectors.joining("\n")));
   }
 
   private static void deleteAllRecords()
