@@ -23,45 +23,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import api.loans.CheckInByBarcodeTests;
-import api.loans.CheckInByReplacingLoanTests;
-import api.loans.CheckOutByBarcodeTests;
-import api.loans.LoanAPILocationTests;
-import api.loans.LoanAPIPolicyTests;
-import api.loans.LoanAPIProxyTests;
-import api.loans.LoanAPIRelatedRecordsTests;
-import api.loans.LoanAPITests;
-import api.loans.LoanAPITitleTests;
-import api.loans.OverrideRenewByBarcodeTests;
-import api.loans.RenewByBarcodeTests;
-import api.loans.RenewByIdTests;
-import api.loans.scenarios.InTransitToHomeLocationTests;
-import api.requests.RequestsAPICreateMultipleRequestsTests;
-import api.requests.RequestsAPICreationTests;
-import api.requests.RequestsAPIDeletionTests;
-import api.requests.RequestsAPILoanHistoryTests;
-import api.requests.RequestsAPILoanRenewalTests;
-import api.requests.RequestsAPILocationTests;
-import api.requests.RequestsAPIProxyTests;
-import api.requests.RequestsAPIRelatedRecordsTests;
-import api.requests.RequestsAPIRetrievalTests;
-import api.requests.RequestsAPIStatusChangeTests;
-import api.requests.RequestsAPITitleTests;
-import api.requests.RequestsAPIUpdatingTests;
-import api.requests.scenarios.ClosedRequestTests;
-import api.requests.scenarios.MultipleHoldShelfRequestsTests;
-import api.requests.scenarios.MultipleMixedFulfilmentRequestsTests;
-import api.requests.scenarios.MultipleOutOfOrderRequestsTests;
-import api.requests.scenarios.RequestQueueTests;
-import api.requests.scenarios.RequestsForDifferentItemsTests;
-import api.requests.scenarios.SingleClosedRequestTests;
-import api.requests.scenarios.SingleOpenDeliveryRequestTests;
-import api.requests.scenarios.SingleOpenHoldShelfRequestTests;
 import api.support.builders.FixedDueDateSchedule;
 import api.support.builders.FixedDueDateSchedulesBuilder;
 import api.support.builders.LoanPolicyBuilder;
@@ -75,47 +39,6 @@ import api.support.http.URLHelper;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
-
-@RunWith(Suite.class)
-
-@Suite.SuiteClasses({
-  CheckOutByBarcodeTests.class,
-  RenewByBarcodeTests.class,
-  RenewByIdTests.class,
-  OverrideRenewByBarcodeTests.class,
-  CheckInByBarcodeTests.class,
-  CheckInByReplacingLoanTests.class,
-  LoanAPITests.class,
-  LoanAPILocationTests.class,
-  LoanAPITitleTests.class,
-  LoanAPIRelatedRecordsTests.class,
-  LoanAPIPolicyTests.class,
-  LoanRulesAPITests.class,
-  LoanAPIProxyTests.class,
-  LoanRulesEngineAPITests.class,
-  InTransitToHomeLocationTests.class,
-  RequestsAPICreationTests.class,
-  RequestsAPICreateMultipleRequestsTests.class,
-  ClosedRequestTests.class,
-  RequestsAPIDeletionTests.class,
-  RequestsAPIRetrievalTests.class,
-  RequestsAPIUpdatingTests.class,
-  RequestsAPIStatusChangeTests.class,
-  RequestsAPILoanRenewalTests.class,
-  RequestsAPILoanHistoryTests.class,
-  RequestsAPILocationTests.class,
-  RequestsAPITitleTests.class,
-  RequestsAPIProxyTests.class,
-  RequestsAPIRelatedRecordsTests.class,
-  SingleOpenHoldShelfRequestTests.class,
-  SingleOpenDeliveryRequestTests.class,
-  SingleClosedRequestTests.class,
-  MultipleHoldShelfRequestsTests.class,
-  MultipleOutOfOrderRequestsTests.class,
-  MultipleMixedFulfilmentRequestsTests.class,
-  RequestsForDifferentItemsTests.class,
-  RequestQueueTests.class,
-})
 public class APITestSuite {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -127,7 +50,6 @@ public class APITestSuite {
   private static VertxAssistant vertxAssistant;
   private static Launcher launcher;
   private static int port;
-  private static boolean initialised;
 
   private static String circulationModuleDeploymentId;
   private static String fakeOkapiDeploymentId;
@@ -287,7 +209,7 @@ public class APITestSuite {
     return djanoglyLibrary;
   }
 
-  public static UUID businessLibrary() {
+  private static UUID businessLibrary() {
     return businessLibrary;
   }
 
@@ -343,8 +265,6 @@ public class APITestSuite {
     createUsers();
     createLoanPolicies();
     createCancellationReasons();
-
-    initialised = true;
   }
 
   @AfterClass
@@ -353,8 +273,6 @@ public class APITestSuite {
     ExecutionException,
     TimeoutException,
     MalformedURLException {
-
-    initialised = false;
 
     OkapiHttpClient client = APITestSuite.createClient(exception ->
       log.error("Requests to delete all for clean up failed:", exception));
@@ -402,7 +320,7 @@ public class APITestSuite {
     stopped.get(5, TimeUnit.SECONDS);
   }
 
-  public static void deleteAllRecords()
+  private static void deleteAllRecords()
     throws MalformedURLException,
     InterruptedException,
     ExecutionException,
@@ -470,7 +388,7 @@ public class APITestSuite {
     usersClient.create(userRecord2).getId();
   }
 
-  public static void createGroups()
+  private static void createGroups()
     throws MalformedURLException,
     InterruptedException,
     ExecutionException,
@@ -501,7 +419,7 @@ public class APITestSuite {
     groupsClient.delete(alternateGroupId);
   }
 
-  public static void createAddressTypes()
+  private static void createAddressTypes()
     throws MalformedURLException,
     InterruptedException,
     ExecutionException,
@@ -910,9 +828,5 @@ public class APITestSuite {
 
   private static String createFakeRequestId() {
     return String.format("%s/fake-context", new Random().nextInt(999999));
-  }
-
-  public static boolean isNotInitialised() {
-    return !initialised;
   }
 }

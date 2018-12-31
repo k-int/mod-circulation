@@ -39,8 +39,6 @@ import io.vertx.core.json.JsonObject;
 public abstract class APITests {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private static boolean runningOnOwn;
-
   protected final OkapiHttpClient client = APITestSuite.createClient(exception ->
     log.error("Request to circulation module failed:", exception));
 
@@ -86,11 +84,7 @@ public abstract class APITests {
     TimeoutException,
     MalformedURLException {
 
-    if(APITestSuite.isNotInitialised()) {
-      System.out.println("Running test on own, initialising suite manually");
-      runningOnOwn = true;
-      APITestSuite.before();
-    }
+    APITestSuite.before();
   }
 
   @Before
@@ -125,10 +119,8 @@ public abstract class APITests {
     TimeoutException,
     MalformedURLException {
 
-    if(runningOnOwn) {
-      System.out.println("Running test on own, un-initialising suite manually");
-      APITestSuite.after();
-    }
+    System.out.println("Running test on own, un-initialising suite manually");
+    APITestSuite.after();
   }
 
   @After
