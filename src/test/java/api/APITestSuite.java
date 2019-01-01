@@ -203,7 +203,6 @@ public class APITestSuite {
     ExecutionException,
     TimeoutException {
 
-    createMaterialTypes();
     createLoanTypes();
     createServicePoints();
     createLocations();
@@ -409,33 +408,6 @@ public class APITestSuite {
 
     ResourceClient groupsClient = ResourceClient.forAddressTypes(createClient());
     groupsClient.delete(workAddressTypeId);
-  }
-
-  private static void createMaterialTypes()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    final ResourceClient client = ResourceClient.forMaterialTypes(createClient());
-
-    final MaterialTypesFixture materialTypesFixture = new MaterialTypesFixture(client);
-
-    materialTypesFixture.book();
-    materialTypesFixture.videoRecording();
-  }
-
-  public static void deleteMaterialTypes()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    ResourceClient client = ResourceClient.forMaterialTypes(createClient());
-
-    final MaterialTypesFixture materialTypesFixture = new MaterialTypesFixture(client);
-
-    materialTypesFixture.cleanUp();
   }
 
   private static void createContributorNameTypes()
