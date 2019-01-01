@@ -32,7 +32,6 @@ import api.support.builders.ServicePointBuilder;
 import api.support.builders.UserBuilder;
 import api.support.fakes.FakeOkapi;
 import api.support.fakes.FakeStorageModule;
-import api.support.fixtures.MaterialTypesFixture;
 import api.support.http.ResourceClient;
 import api.support.http.URLHelper;
 import io.vertx.core.Vertx;
@@ -53,8 +52,6 @@ public class APITestSuite {
   private static String fakeOkapiDeploymentId;
   private static Boolean useOkapiForStorage;
   private static Boolean useOkapiForInitialRequests;
-  private static UUID canCirculateLoanTypeId;
-  private static UUID readingRoomLoanTypeId;
   private static UUID booksInstanceTypeId;
   private static UUID regularGroupId;
   private static UUID alternateGroupId;
@@ -115,14 +112,6 @@ public class APITestSuite {
   private static OkapiHttpClient createClient() {
     return APITestSuite.createClient(exception ->
       log.error("Request failed:", exception));
-  }
-
-  public static UUID canCirculateLoanTypeId() {
-    return canCirculateLoanTypeId;
-  }
-
-  public static UUID readingRoomLoanTypeId() {
-    return readingRoomLoanTypeId;
   }
 
   public static UUID thirdFloorLocationId() {
@@ -203,7 +192,6 @@ public class APITestSuite {
     ExecutionException,
     TimeoutException {
 
-    createLoanTypes();
     createServicePoints();
     createLocations();
     createContributorNameTypes();
@@ -305,6 +293,9 @@ public class APITestSuite {
     ResourceClient.forLoanPolicies(client).deleteAllIndividually();
     ResourceClient.forFixedDueDateSchedules(client).deleteAllIndividually();
 
+    ResourceClient.forMaterialTypes(client).deleteAllIndividually();
+    ResourceClient.forLoanTypes(client).deleteAllIndividually();
+
     ResourceClient.forUsers(client).deleteAllIndividually();
 
     ResourceClient.forPatronGroups(client).deleteAllIndividually();
@@ -316,7 +307,6 @@ public class APITestSuite {
     ResourceClient.forServicePoints(client).deleteAllIndividually();
     ResourceClient.forContributorNameTypes(client).deleteAllIndividually();
     ResourceClient.forInstanceTypes(client).deleteAllIndividually();
-    ResourceClient.forLoanPolicies(client).deleteAllIndividually();
     ResourceClient.forCancellationReasons(client).deleteAllIndividually();
   }
 
@@ -427,31 +417,6 @@ public class APITestSuite {
 
     ResourceClient contributorTypesClient = ResourceClient.forContributorNameTypes(createClient());
     contributorTypesClient.delete(personalContributorTypeId);
-  }
-
-  private static void createLoanTypes()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    canCirculateLoanTypeId = createReferenceRecord(
-      ResourceClient.forLoanTypes(createClient()), "Can Circulate");
-
-    readingRoomLoanTypeId = createReferenceRecord(
-      ResourceClient.forLoanTypes(createClient()), "Reading Room");
-  }
-
-  public static void deleteLoanTypes()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    ResourceClient loanTypesClient = ResourceClient.forLoanTypes(createClient());
-
-    loanTypesClient.delete(canCirculateLoanTypeId);
-    loanTypesClient.delete(readingRoomLoanTypeId);
   }
 
   private static void createServicePoints()
