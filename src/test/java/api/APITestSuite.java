@@ -27,8 +27,6 @@ import org.slf4j.LoggerFactory;
 import api.support.builders.FixedDueDateSchedule;
 import api.support.builders.FixedDueDateSchedulesBuilder;
 import api.support.builders.LoanPolicyBuilder;
-import api.support.builders.ServicePointBuilder;
-import api.support.examples.LocationExamples;
 import api.support.fakes.FakeOkapi;
 import api.support.fakes.FakeStorageModule;
 import api.support.http.ResourceClient;
@@ -64,7 +62,6 @@ public class APITestSuite {
   public static UUID thirdFloorLocationId;
   public static UUID mezzanineDisplayCaseLocationId;
   public static UUID secondFloorEconomicsLocationId;
-  public static UUID fakeServicePointId;
 
   private static UUID canCirculateRollingLoanPolicyId;
   private static UUID canCirculateFixedLoanPolicyId;
@@ -168,10 +165,6 @@ public class APITestSuite {
 
   public static UUID businessLibrary() {
     return businessLibrary;
-  }
-
-  public static UUID fakeServicePoint() {
-    return fakeServicePointId;
   }
 
   public static void createCommonRecords()
