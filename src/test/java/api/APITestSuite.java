@@ -49,7 +49,6 @@ public class APITestSuite {
   private static String fakeOkapiDeploymentId;
   private static Boolean useOkapiForStorage;
   private static Boolean useOkapiForInitialRequests;
-  private static UUID workAddressTypeId;
 
   private static UUID canCirculateRollingLoanPolicyId;
   private static UUID canCirculateFixedLoanPolicyId;
@@ -95,10 +94,6 @@ public class APITestSuite {
       log.error("Request failed:", exception));
   }
 
-  public static UUID workAddressTypeId() {
-    return workAddressTypeId;
-  }
-
   public static UUID canCirculateRollingLoanPolicyId() {
     return canCirculateRollingLoanPolicyId;
   }
@@ -116,8 +111,6 @@ public class APITestSuite {
     InterruptedException,
     ExecutionException,
     TimeoutException {
-
-    createAddressTypes();
 
     createLoanPolicies();
     createCancellationReasons();
@@ -240,31 +233,6 @@ public class APITestSuite {
     } catch (MalformedURLException ex) {
       throw new IllegalArgumentException("Invalid Okapi URL configured for tests");
     }
-  }
-
-  private static void createAddressTypes()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-    ResourceClient addressTypesClient = ResourceClient.forAddressTypes(createClient());
-
-    addressTypesClient.deleteAllIndividually();
-
-    workAddressTypeId = addressTypesClient.create(new JsonObject()
-      .put("addressType", "Work")
-      .put("desc", "Work address type"))
-      .getId();
-  }
-
-  public static void deleteAddressTypes()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    ResourceClient groupsClient = ResourceClient.forAddressTypes(createClient());
-    groupsClient.delete(workAddressTypeId);
   }
 
   private static void createLoanPolicies()
