@@ -54,9 +54,6 @@ public class APITestSuite {
   private static UUID canCirculateFixedLoanPolicyId;
   private static UUID exampleFixedDueDateSchedulesId;
 
-  private static UUID courseReservesCancellationReasonId;
-  private static UUID patronRequestCancellationReasonId;
-
   public static int circulationModulePort() {
     return port;
   }
@@ -102,10 +99,6 @@ public class APITestSuite {
     return canCirculateFixedLoanPolicyId;
   }
 
-  public static UUID courseReservesCancellationReasonId() {
-    return courseReservesCancellationReasonId;
-  }
-
   public static void createCommonRecords()
     throws MalformedURLException,
     InterruptedException,
@@ -113,7 +106,6 @@ public class APITestSuite {
     TimeoutException {
 
     createLoanPolicies();
-    createCancellationReasons();
   }
 
   public static void deployVerticles()
@@ -361,40 +353,6 @@ public class APITestSuite {
     write(referenceRecord, "source", source);
 
     return createReferenceRecord(client, referenceRecord);
-  }
-
-  private static void createCancellationReasons()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    courseReservesCancellationReasonId = createReferenceRecord(
-        ResourceClient.forCancellationReasons(createClient()),
-        new JsonObject()
-            .put("name", "Course Reserves")
-            .put("description", "Item Needed for Course Reserves")
-    );
-
-    patronRequestCancellationReasonId = createReferenceRecord(
-        ResourceClient.forCancellationReasons(createClient()),
-        new JsonObject()
-            .put("name", "Patron Request")
-            .put("description", "Item cancelled at Patron request")
-    );
-  }
-
-  public static void deleteCancellationReasons()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    ResourceClient cancellationReasonClient =
-        ResourceClient.forCancellationReasons(createClient());
-
-    cancellationReasonClient.delete(courseReservesCancellationReasonId);
-    cancellationReasonClient.delete(patronRequestCancellationReasonId);
   }
 
   private static UUID findFirstByName(List<JsonObject> existingRecords, String name) {
