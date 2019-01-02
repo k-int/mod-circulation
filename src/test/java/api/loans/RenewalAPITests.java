@@ -6,6 +6,7 @@ import static api.support.builders.ItemBuilder.CHECKED_OUT;
 import static api.support.matchers.ItemStatusCodeMatcher.hasItemStatus;
 import static api.support.matchers.TextDateTimeMatcher.isEquivalentTo;
 import static api.support.matchers.TextDateTimeMatcher.withinSecondsAfter;
+import static api.support.matchers.UUIDMatcher.is;
 import static api.support.matchers.ValidationErrorMatchers.hasErrorWith;
 import static api.support.matchers.ValidationErrorMatchers.hasMessage;
 import static api.support.matchers.ValidationErrorMatchers.hasParameter;
@@ -87,7 +88,7 @@ abstract class RenewalAPITests extends APITests {
 
     assertThat("last loan policy should be stored",
       renewedLoan.getString("loanPolicyId"),
-      is(APITestSuite.canCirculateRollingLoanPolicyId().toString()));
+      is(loanPoliciesFixture.canCirculateRolling().getId()));
 
     assertThat("due date should be approximately 3 weeks after renewal date, based upon loan policy",
       renewedLoan.getString("dueDate"),
@@ -551,7 +552,7 @@ abstract class RenewalAPITests extends APITests {
 
     assertThat("last loan policy should be stored",
       renewedLoan.getString("loanPolicyId"),
-      is(APITestSuite.canCirculateRollingLoanPolicyId().toString()));
+      is(loanPoliciesFixture.canCirculateRolling().getId()));
 
     assertThat("due date should be approximately 3 weeks after renewal date, based upon loan policy",
       renewedLoan.getString("dueDate"),
