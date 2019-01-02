@@ -44,8 +44,6 @@ public class APITestSuite {
   private static Boolean useOkapiForStorage;
   private static Boolean useOkapiForInitialRequests;
 
-  private static UUID exampleFixedDueDateSchedulesId;
-
   public static int circulationModulePort() {
     return port;
   }

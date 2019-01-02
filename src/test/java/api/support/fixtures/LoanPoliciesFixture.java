@@ -61,6 +61,15 @@ public class LoanPoliciesFixture {
     return loanPolicyRecordCreator.createIfAbsent(policy);
   }
 
+  public IndividualResource createSchedule(FixedDueDateSchedulesBuilder builder)
+    throws InterruptedException,
+    MalformedURLException,
+    TimeoutException,
+    ExecutionException {
+
+    return fixedDueDateScheduleRecordCreator.createIfAbsent(builder);
+  }
+
   public IndividualResource canCirculateRolling()
       throws InterruptedException, 
       MalformedURLException, 

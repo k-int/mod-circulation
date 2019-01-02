@@ -196,11 +196,8 @@ public class CheckOutByBarcodeTests extends APITests {
       .withName("March Only Due Date Limit")
       .addSchedule(FixedDueDateSchedule.wholeMonth(2018, 3));
 
-    final UUID dueDateLimitScheduleId = fixedDueDateScheduleClient.create(
+    final UUID dueDateLimitScheduleId = loanPoliciesFixture.createSchedule(
       dueDateLimitSchedule).getId();
-
-    //Need to remember in order to delete after test
-    schedulesToDelete.add(dueDateLimitScheduleId);
 
     LoanPolicyBuilder dueDateLimitedPolicy = new LoanPolicyBuilder()
       .withName("Due Date Limited Rolling Policy")
