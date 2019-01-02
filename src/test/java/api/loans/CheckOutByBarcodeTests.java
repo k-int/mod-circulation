@@ -335,7 +335,7 @@ public class CheckOutByBarcodeTests extends APITests {
     final IndividualResource james = usersFixture.james();
     final IndividualResource steve = usersFixture.steve(UserBuilder::inactive);
 
-    usersFixture.currentProxyFor(james, steve);
+    proxyRelationshipsFixture.currentProxyFor(james, steve);
 
     final Response response = loansFixture.attemptCheckOutByBarcode(
       new CheckOutByBarcodeRequestBuilder()
@@ -510,7 +510,7 @@ public class CheckOutByBarcodeTests extends APITests {
     IndividualResource james = usersFixture.james();
     IndividualResource jessica = usersFixture.jessica();
 
-    usersFixture.currentProxyFor(jessica, james);
+    proxyRelationshipsFixture.currentProxyFor(jessica, james);
 
     final IndividualResource response = loansFixture.checkOutByBarcode(
       new CheckOutByBarcodeRequestBuilder()
