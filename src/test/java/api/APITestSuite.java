@@ -50,7 +50,6 @@ public class APITestSuite {
   private static Boolean useOkapiForStorage;
   private static Boolean useOkapiForInitialRequests;
   private static UUID workAddressTypeId;
-  private static UUID personalContributorTypeId;
 
   private static UUID canCirculateRollingLoanPolicyId;
   private static UUID canCirculateFixedLoanPolicyId;
@@ -96,10 +95,6 @@ public class APITestSuite {
       log.error("Request failed:", exception));
   }
 
-  public static UUID personalContributorNameTypeId() {
-    return personalContributorTypeId;
-  }
-
   public static UUID workAddressTypeId() {
     return workAddressTypeId;
   }
@@ -121,8 +116,6 @@ public class APITestSuite {
     InterruptedException,
     ExecutionException,
     TimeoutException {
-
-    createContributorNameTypes();
 
     createAddressTypes();
 
@@ -272,25 +265,6 @@ public class APITestSuite {
 
     ResourceClient groupsClient = ResourceClient.forAddressTypes(createClient());
     groupsClient.delete(workAddressTypeId);
-  }
-
-  private static void createContributorNameTypes()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-    personalContributorTypeId = createReferenceRecord(
-      ResourceClient.forContributorNameTypes(createClient()), "Personal name");
-  }
-
-  public static void deleteContributorTypes()
-    throws MalformedURLException,
-    InterruptedException,
-    ExecutionException,
-    TimeoutException {
-
-    ResourceClient contributorTypesClient = ResourceClient.forContributorNameTypes(createClient());
-    contributorTypesClient.delete(personalContributorTypeId);
   }
 
   private static void createLoanPolicies()
