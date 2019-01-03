@@ -35,7 +35,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
 import org.junit.Test;
 
-import api.APITestSuite;
+import api.support.APITestContext;
 import api.support.APITests;
 import api.support.builders.CheckOutByBarcodeRequestBuilder;
 import api.support.builders.FixedDueDateSchedule;
@@ -251,7 +251,7 @@ public class CheckOutByBarcodeTests extends APITests {
 
     final CompletableFuture<Response> completed = new CompletableFuture<>();
 
-    client.get(APITestSuite.circulationModuleUrl(response.getLocation()),
+    client.get(APITestContext.circulationModuleUrl(response.getLocation()),
       ResponseHandler.json(completed));
 
     final Response getResponse = completed.get(2, TimeUnit.SECONDS);

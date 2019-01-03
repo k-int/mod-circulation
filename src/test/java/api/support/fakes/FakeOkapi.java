@@ -10,7 +10,7 @@ import org.folio.circulation.support.http.server.ServerErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import api.APITestSuite;
+import api.support.APITestContext;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
@@ -223,13 +223,13 @@ public class FakeOkapi extends AbstractVerticle {
     //During loan creation, a request to /circulation/loan-rules/apply is made,
     //which is effectively to itself, so needs to be routed back
     router.get("/circulation/loan-rules/apply").handler(context -> {
-      OkapiHttpClient client = APITestSuite.createClient(throwable ->
+      OkapiHttpClient client = APITestContext.createClient(throwable ->
         ServerErrorResponse.internalError(context.response(),
           String.format("Exception when forward loan rules apply request: %s",
             throwable.getMessage())));
 
       client.get(String.format("http://localhost:%s/circulation/loan-rules/apply?%s"
-        , APITestSuite.circulationModulePort(), context.request().query()),
+        , APITestContext.circulationModulePort(), context.request().query()),
         httpClientResponse ->
           httpClientResponse.bodyHandler(buffer ->
             ForwardResponse.forward(context.response(), httpClientResponse,
