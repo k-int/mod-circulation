@@ -1,13 +1,13 @@
 package org.folio.circulation.domain.validation;
 
+import static org.folio.circulation.support.Result.succeeded;
+
+import java.util.function.Function;
+
 import org.folio.circulation.domain.LoanAndRelatedRecords;
 import org.folio.circulation.domain.User;
 import org.folio.circulation.support.Result;
 import org.folio.circulation.support.ValidationErrorFailure;
-
-import java.util.function.Function;
-
-import static org.folio.circulation.support.Result.succeeded;
 
 public class AwaitingPickupValidator {
   private final Function<String, ValidationErrorFailure> awaitingPickupErrorFunction;
@@ -16,6 +16,27 @@ public class AwaitingPickupValidator {
     Function<String, ValidationErrorFailure> stringValidationErrorFailureFunction) {
 
     awaitingPickupErrorFunction = stringValidationErrorFailureFunction;
+  }
+
+  public Result<LoanAndRelatedRecords> refuseWhenPagedByOtherUser(
+    Result<LoanAndRelatedRecords> loanAndRelatedRecords) {
+
+    return loanAndRelatedRecords.next(loan -> {
+      String itemTitle = loan.getLoan().getItem().getTitle();
+      String itemBarcode = loan.getLoan().getItem().getBarcode();
+      final User requestingUser = loan.getLoan().getUser();
+
+      return loanAndRelatedRecords.failWhen(
+        this::isPagedByOtherUser,
+        records -> awaitingPickupErrorFunction.apply(
+          String.format("%s (Barcode: %s) cannot be checked out to user %s because it has been paged by another patron",
+            itemTitle, itemBarcode, requestingUser.getPersonalName())));
+    });
+  }
+
+  private Result<Boolean> isPagedByOtherUser(LoanAndRelatedRecords loanAndRelatedRecords) {
+    return succeeded(loanAndRelatedRecords.getRequestQueue()
+      .hasPageRequestForOtherPatron(loanAndRelatedRecords.getLoan().getUser()));
   }
 
   public Result<LoanAndRelatedRecords> refuseWhenUserIsNotAwaitingPickup(
@@ -29,7 +50,7 @@ public class AwaitingPickupValidator {
       return loanAndRelatedRecords.failWhen(
         this::isAwaitingPickupForOtherPatron,
         records -> awaitingPickupErrorFunction.apply(
-        String.format("%s (Barcode: %s) cannot be checked out to user %s because it is awaiting pickup by another patron",
+          String.format("%s (Barcode: %s) cannot be checked out to user %s because it is awaiting pickup by another patron",
           itemTitle, itemBarcode, requestingUser.getPersonalName())));
     });
   }

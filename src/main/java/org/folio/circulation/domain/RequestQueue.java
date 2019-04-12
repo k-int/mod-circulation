@@ -28,8 +28,7 @@ public class RequestQueue {
     return fulfillableRequests().get(0);
   }
 
-  public boolean hasAwaitingPickupRequestForOtherPatron(
-    User requestingUser) {
+  public boolean hasAwaitingPickupRequestForOtherPatron(User requestingUser) {
 
     if(!hasOutstandingFulfillableRequests()) {
       return false;
@@ -38,6 +37,18 @@ public class RequestQueue {
       final Request highestPriority = getHighestPriorityFulfillableRequest();
 
       return highestPriority.isAwaitingPickup()
+        && !highestPriority.isFor(requestingUser);
+    }
+  }
+
+  public boolean hasPageRequestForOtherPatron(User requestingUser) {
+    if(!hasOutstandingFulfillableRequests()) {
+      return false;
+    }
+    else {
+      final Request highestPriority = getHighestPriorityFulfillableRequest();
+
+      return highestPriority.getRequestType() == RequestType.PAGE
         && !highestPriority.isFor(requestingUser);
     }
   }
