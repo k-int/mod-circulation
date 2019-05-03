@@ -4,95 +4,56 @@ import static org.folio.circulation.support.http.client.ResponseHandler.response
 
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.folio.circulation.support.http.client.OkapiHttpClient;
 import org.folio.circulation.support.http.client.Response;
 
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.json.JsonObject;
 
 public class CollectionResourceClient {
   private final OkapiHttpClient client;
   private final URL collectionRoot;
 
-  public CollectionResourceClient(
-    OkapiHttpClient client,
-    URL collectionRoot) {
-
+  public CollectionResourceClient(OkapiHttpClient client, URL collectionRoot) {
     this.client = client;
     this.collectionRoot = collectionRoot;
   }
 
-  public CompletableFuture<Response> post(
-    JsonObject resourceRepresentation) {
-
-    CompletableFuture<Response> future = new CompletableFuture<>();
-
-    client.post(collectionRoot,
-      resourceRepresentation,
-      responseConversationHandler(future::complete));
-
-    return future;
+  public CompletableFuture<Response> post(JsonObject resourceRepresentation) {
+    return bindResponseToFuture(handler ->
+      client.post(collectionRoot, resourceRepresentation, handler));
   }
 
-  public CompletableFuture<Response> put(
-    JsonObject resourceRepresentation) {
-
-    final CompletableFuture<Response> future = new CompletableFuture<>();
-
-    client.put(collectionRoot,
-      resourceRepresentation,
-      responseConversationHandler(future::complete));
-
-    return future;
+  public CompletableFuture<Response> put(JsonObject resourceRepresentation) {
+    return bindResponseToFuture(handler ->
+      client.put(collectionRoot, resourceRepresentation, handler));
   }
 
-  public CompletableFuture<Response> put(
-    String id,
-    JsonObject resourceRepresentation) {
-
-    CompletableFuture<Response> future = new CompletableFuture<>();
-
-    client.put(individualRecordUrl(id),
-      resourceRepresentation,
-      responseConversationHandler(future::complete));
-
-    return future;
+  public CompletableFuture<Response> put(String id, JsonObject resourceRepresentation) {
+    return bindResponseToFuture(handler ->
+      client.put(individualRecordUrl(id), resourceRepresentation, handler));
   }
 
   public CompletableFuture<Response> get() {
-    final CompletableFuture<Response> future = new CompletableFuture<>();
-
-    client.get(collectionRoot,
-      responseConversationHandler(future::complete));
-
-    return future;
+    return bindResponseToFuture(handler -> client.get(collectionRoot, handler));
   }
 
   public CompletableFuture<Response> get(String id) {
-    final CompletableFuture<Response> future = new CompletableFuture<>();
-
-    client.get(individualRecordUrl(id),
-      responseConversationHandler(future::complete));
-
-    return future;
+    return bindResponseToFuture(handler ->
+      client.get(individualRecordUrl(id), handler));
   }
 
   public CompletableFuture<Response> delete(String id) {
-    final CompletableFuture<Response> future = new CompletableFuture<>();
-
-    client.delete(individualRecordUrl(id),
-      responseConversationHandler(future::complete));
-
-    return future;
+    return bindResponseToFuture(handler ->
+      client.delete(individualRecordUrl(id), handler));
   }
 
   public CompletableFuture<Response> delete() {
-    final CompletableFuture<Response> future = new CompletableFuture<>();
-
-    client.delete(collectionRoot, responseConversationHandler(future::complete));
-
-    return future;
+    return bindResponseToFuture(handler -> client.delete(collectionRoot, handler));
   }
 
   /**
@@ -107,29 +68,19 @@ public class CollectionResourceClient {
   public CompletableFuture<Response> getManyWithRawQueryStringParameters(
     String rawQueryString) {
 
-    final CompletableFuture<Response> future = new CompletableFuture<>();
-
     String url = isProvided(rawQueryString)
       ? String.format("%s?%s", collectionRoot, rawQueryString)
       : collectionRoot.toString();
 
-    client.get(url, responseConversationHandler(future::complete));
-
-    return future;
+    return bindResponseToFuture(handler -> client.get(url, handler));
   }
 
   public CompletableFuture<Result<Response>> getMany(
     CqlQuery cqlQuery, Integer pageLimit) {
 
-    return cqlQuery.encode().after(encodedQuery -> {
-        final CompletableFuture<Response> future = new CompletableFuture<>();
-
-        String url = collectionRoot + createQueryString(encodedQuery, pageLimit, 0);
-
-        client.get(url, responseConversationHandler(future::complete));
-
-        return future.thenApply(Result::succeeded);
-      });
+    return cqlQuery.encode()
+      .map(query -> collectionRoot + createQueryString(query, pageLimit, 0))
+      .after(url -> bindResponseToResult(handler -> client.get(url, handler)));
   }
 
   private static boolean isProvided(String query) {
@@ -169,6 +120,23 @@ public class CollectionResourceClient {
       query += "offset=" + pageOffset;
     }
     return query;
+  }
+  
+  private CompletableFuture<Result<Response>> bindResponseToResult(
+    Consumer<Handler<HttpClientResponse>> requestInvoker) {
+
+    return bindResponseToFuture(requestInvoker)
+      .thenApply(Result::succeeded);
+  }
+
+  private CompletableFuture<Response> bindResponseToFuture(
+    Consumer<Handler<HttpClientResponse>> requestInvoker) {
+
+    final CompletableFuture<Response> future = new CompletableFuture<>();
+
+    requestInvoker.accept(responseConversationHandler(future::complete));
+
+    return future;
   }
 
   private String individualRecordUrl(String id) {
