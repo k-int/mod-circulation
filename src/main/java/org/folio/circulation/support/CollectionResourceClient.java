@@ -1,25 +1,17 @@
 package org.folio.circulation.support;
 
-import java.lang.invoke.MethodHandles;
+import static org.folio.circulation.support.http.client.ResponseHandler.responseConversationHandler;
+
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.http.entity.ContentType;
 import org.folio.circulation.support.http.client.OkapiHttpClient;
 import org.folio.circulation.support.http.client.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.vertx.core.Handler;
-import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.json.JsonObject;
 
 public class CollectionResourceClient {
-  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
   private final OkapiHttpClient client;
   private final URL collectionRoot;
 
@@ -177,18 +169,6 @@ public class CollectionResourceClient {
       query += "offset=" + pageOffset;
     }
     return query;
-  }
-
-  private Handler<HttpClientResponse> responseConversationHandler(
-    Consumer<Response> responseHandler) {
-
-    return response -> response
-      .bodyHandler(buffer -> responseHandler.accept(Response.from(response, buffer)))
-      .exceptionHandler(ex -> {
-        log.error("Unhandled exception in body handler", ex);
-        String trace = ExceptionUtils.getStackTrace(ex);
-        responseHandler.accept(new Response(500, trace, ContentType.TEXT_PLAIN.toString()));
-      });
   }
 
   private String individualRecordUrl(String id) {

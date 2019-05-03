@@ -1,45 +1,42 @@
 package org.folio.circulation.support.http.client;
 
-import io.vertx.core.Handler;
-import io.vertx.core.http.HttpClientResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpClientResponse;
 
 public class ResponseHandler {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private ResponseHandler() { }
 
-  public static Handler<HttpClientResponse> any(
-    CompletableFuture<Response> completed) {
-
-    return responseHandler(completed,
-      responseToCheck -> true,
-      failingResponse -> null);
+  public static Handler<HttpClientResponse> any(CompletableFuture<Response> completed) {
+    return responseHandler(completed, responseToCheck -> true, failingResponse -> null);
   }
 
-  public static Handler<HttpClientResponse> json(
-    CompletableFuture<Response> completed) {
-
-    return strictContentType(completed, "application/json");
+  public static Handler<HttpClientResponse> json(CompletableFuture<Response> completed) {
+    return responseHandler(completed,
+      ResponseHandler::isJson, ResponseHandler::expectedJsonException);
   }
 
-  private static Handler<HttpClientResponse> strictContentType(
-    CompletableFuture<Response> completed,
-    String expectedContentType) {
+  private static Exception expectedJsonException(Response response) {
+    return new Exception(
+      String.format("Expected Json, actual: %s (Body: %s)",
+        response.getContentType(), response.getBody()));
+  }
 
-    return responseHandler(completed,
-      responseToCheck ->
-        responseToCheck.getContentType().contains(expectedContentType),
-      failingResponse -> new Exception(
-        String.format("Expected Content Type: %s Actual: %s (Body: %s)",
-          expectedContentType, failingResponse.getContentType(),
-          failingResponse.getBody())));
+  private static boolean isJson(Response response) {
+    return response.getContentType().contains("application/json");
   }
 
   private static Handler<HttpClientResponse> responseHandler(
@@ -47,10 +44,8 @@ public class ResponseHandler {
     Predicate<Response> expectation,
     Function<Response, Throwable> expectationFailed) {
 
-    return vertxResponse -> vertxResponse.bodyHandler(buffer -> {
+    return responseConversationHandler(response -> {
       try {
-        Response response = Response.from(vertxResponse, buffer);
-
         log.debug("Received Response: {}: {}", response.getStatusCode(), response.getContentType());
         log.debug("Received Response Body: {}", response.getBody());
 
@@ -58,12 +53,23 @@ public class ResponseHandler {
           completed.complete(response);
         }
         else {
-          completed.completeExceptionally(
-            expectationFailed.apply(response));
+          completed.completeExceptionally(expectationFailed.apply(response));
         }
       } catch (Exception e) {
         completed.completeExceptionally(e);
       }
     });
+  }
+
+  public static Handler<HttpClientResponse> responseConversationHandler(
+    Consumer<Response> responseHandler) {
+
+    return response -> response
+      .bodyHandler(buffer -> responseHandler.accept(Response.from(response, buffer)))
+      .exceptionHandler(ex -> {
+        log.error("Unhandled exception in body handler", ex);
+        String trace = ExceptionUtils.getStackTrace(ex);
+        responseHandler.accept(new Response(500, trace, TEXT_PLAIN.toString()));
+      });
   }
 }
