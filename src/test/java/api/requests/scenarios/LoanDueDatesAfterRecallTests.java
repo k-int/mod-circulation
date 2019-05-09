@@ -53,12 +53,12 @@ public class LoanDueDatesAfterRecallTests extends APITests {
   private static Clock clock;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  public static void setUpBeforeClass() {
     clock = Clock.fixed(Instant.now(), ZoneOffset.UTC);
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     // reset the clock before each test (just in case)
     ClockManager.getClockManager().setClock(clock);
   }
