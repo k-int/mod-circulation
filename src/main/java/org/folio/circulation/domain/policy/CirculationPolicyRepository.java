@@ -3,6 +3,7 @@ package org.folio.circulation.domain.policy;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.folio.circulation.support.Result.failed;
 import static org.folio.circulation.support.Result.succeeded;
+import static org.folio.circulation.support.ResultBinding.nextResult;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CompletableFuture;
@@ -61,9 +62,6 @@ public abstract class CirculationPolicyRepository<T> {
     Item item,
     User user) {
 
-    CompletableFuture<Result<String>> findLoanPolicyCompleted
-      = new CompletableFuture<>();
-
     if (item.isNotFound()) {
       return completedFuture(failed(
         new ServerErrorFailure("Unable to apply circulation rules for unknown item")));
@@ -79,7 +77,7 @@ public abstract class CirculationPolicyRepository<T> {
     String materialTypeId = item.getMaterialTypeId();
     String patronGroupId = user.getPatronGroupId();
 
-    CompletableFuture<Response> circulationRulesResponse = new CompletableFuture<>();
+    CompletableFuture<Result<Response>> circulationRulesResponse = new CompletableFuture<>();
 
     log.info(
       "Applying circulation rules for material type: {}, patron group: {}, loan type: {}, location: {}",
@@ -88,20 +86,17 @@ public abstract class CirculationPolicyRepository<T> {
     circulationRulesClient.applyRules(loanTypeId, locationId, materialTypeId,
       patronGroupId, ResponseHandler.any(circulationRulesResponse));
 
-    circulationRulesResponse.thenAcceptAsync(response -> {
+    return circulationRulesResponse.thenApplyAsync(nextResult(response -> {
       if (response.getStatusCode() == 404) {
-        findLoanPolicyCompleted.complete(failed(
-          new ServerErrorFailure("Unable to apply circulation rules")));
+        return failed(
+          new ServerErrorFailure("Unable to apply circulation rules"));
       } else if (response.getStatusCode() != 200) {
-        findLoanPolicyCompleted.complete(failed(
-          new ForwardOnFailure(response)));
+        return failed(new ForwardOnFailure(response));
       } else {
         String policyId = fetchPolicyId(response.getJson());
-        findLoanPolicyCompleted.complete(succeeded(policyId));
+        return succeeded(policyId);
       }
-    });
-
-    return findLoanPolicyCompleted;
+    }));
   }
 
   protected abstract String getPolicyNotFoundErrorMessage(String policyId);
