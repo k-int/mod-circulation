@@ -21,7 +21,7 @@ public class ResponseHandler {
   private ResponseHandler() { }
 
   public static Handler<HttpClientResponse> any(CompletableFuture<Response> completed) {
-    return responseHandler(completed, responseToCheck -> true, failingResponse -> null);
+    return responseConversationHandler(completed::complete);
   }
 
   public static Handler<HttpClientResponse> json(CompletableFuture<Response> completed) {
