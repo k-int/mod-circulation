@@ -5,8 +5,6 @@ import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -25,8 +23,21 @@ public class ResponseHandler {
   }
 
   public static Handler<HttpClientResponse> json(CompletableFuture<Response> completed) {
-    return responseHandler(completed,
-      ResponseHandler::isJson, ResponseHandler::expectedJsonException);
+    return responseConversationHandler(response -> {
+      try {
+        log.debug("Received Response: {}: {}", response.getStatusCode(), response.getContentType());
+        log.debug("Received Response Body: {}", response.getBody());
+
+        if(isJson(response)) {
+          completed.complete(response);
+        }
+        else {
+          completed.completeExceptionally(expectedJsonException(response));
+        }
+      } catch (Exception e) {
+        completed.completeExceptionally(e);
+      }
+    });
   }
 
   private static Exception expectedJsonException(Response response) {
@@ -37,28 +48,6 @@ public class ResponseHandler {
 
   private static boolean isJson(Response response) {
     return response.getContentType().contains("application/json");
-  }
-
-  private static Handler<HttpClientResponse> responseHandler(
-    CompletableFuture<Response> completed,
-    Predicate<Response> expectation,
-    Function<Response, Throwable> expectationFailed) {
-
-    return responseConversationHandler(response -> {
-      try {
-        log.debug("Received Response: {}: {}", response.getStatusCode(), response.getContentType());
-        log.debug("Received Response Body: {}", response.getBody());
-
-        if(expectation.test(response)) {
-          completed.complete(response);
-        }
-        else {
-          completed.completeExceptionally(expectationFailed.apply(response));
-        }
-      } catch (Exception e) {
-        completed.completeExceptionally(e);
-      }
-    });
   }
 
   public static Handler<HttpClientResponse> responseConversationHandler(
