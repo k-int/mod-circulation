@@ -172,7 +172,7 @@ public class CheckInByBarcodeTests extends APITests {
     assertThat(response, hasStatus(HTTP_VALIDATION_ERROR));
 
     assertThat(response.getJson(), hasErrorWith(hasMessage(
-        "Checkin request must have a service point id")));
+        "#: required key [servicePointId] not found")));
   }
 
   @Test
@@ -198,7 +198,7 @@ public class CheckInByBarcodeTests extends APITests {
     assertThat(response, hasStatus(HTTP_VALIDATION_ERROR));
 
     assertThat(response.getJson(), hasErrorWith(hasMessage(
-      "Checkin request must have an item barcode")));
+      "#: required key [itemBarcode] not found")));
   }
 
   @Test
@@ -224,7 +224,7 @@ public class CheckInByBarcodeTests extends APITests {
     assertThat(response, hasStatus(HTTP_VALIDATION_ERROR));
 
     assertThat(response.getJson(), hasErrorWith(hasMessage(
-      "Checkin request must have an check in date")));
+      "#: required key [checkInDate] not found")));
   }
 
   @Test
