@@ -42,7 +42,7 @@ public class LoanPolicyRepository extends CirculationPolicyRepository<LoanPolicy
   public CompletableFuture<Result<Loan>> findPolicyForLoan(Result<Loan> loanResult) {
     return loanResult.after(loan ->
       getLoanPolicyById(loan.getLoanPolicyId())
-      .thenApply(result -> result.map(loan::withLoanPolicy)));
+      .thenApply(result -> result.map(loan::changeLoanPolicy)));
   }
 
   private CompletableFuture<Result<LoanPolicy>> getLoanPolicyById(String loanPolicyId) {
@@ -53,18 +53,20 @@ public class LoanPolicyRepository extends CirculationPolicyRepository<LoanPolicy
             .fetch(loanPolicyId);
   }
 
-  public CompletableFuture<Result<MultipleRecords<Loan>>> findLoanPoliciesForLoans(MultipleRecords<Loan> multipleLoans) {
+  public CompletableFuture<Result<MultipleRecords<Loan>>> findLoanPoliciesForLoans(
+    MultipleRecords<Loan> multipleLoans) {
 
     Collection<Loan> loans = multipleLoans.getRecords();
 
     return getLoanPolicies(loans)
       .thenApply(r ->r.map(loanPolicies -> multipleLoans.mapRecords(
-        loan -> loan.withLoanPolicy(loanPolicies.getOrDefault(
-          loan.getLoanPolicyId(), null))))
+        loan -> loan.changeLoanPolicy(loanPolicies.getOrDefault(
+          loan.getLoanPolicyId(), LoanPolicy.unknown(loan.getLoanPolicyId())))))
     );
   }
 
-  private CompletableFuture<Result<Map<String, LoanPolicy>>> getLoanPolicies(Collection<Loan> loans) {
+  private CompletableFuture<Result<Map<String, LoanPolicy>>> getLoanPolicies(
+    Collection<Loan> loans) {
 
     final Collection<String> loansToFetch = loans.stream()
             .map(Loan::getLoanPolicyId)
@@ -74,7 +76,7 @@ public class LoanPolicyRepository extends CirculationPolicyRepository<LoanPolicy
     final MultipleRecordFetcher<LoanPolicy> fetcher = createLoanPoliciesFetcher();
 
     return fetcher.findByIds(loansToFetch)
-      .thenApply(mapResult(r -> r.toMap(LoanPolicy::getId)));
+      .thenApply(mapResult(records -> records.toMap(LoanPolicy::getId)));
   }
 
   private MultipleRecordFetcher<LoanPolicy> createLoanPoliciesFetcher() {

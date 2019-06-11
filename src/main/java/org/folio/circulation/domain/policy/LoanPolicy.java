@@ -58,6 +58,11 @@ public class LoanPolicy {
     return new LoanPolicy(representation);
   }
 
+  public static LoanPolicy unknown(String id) {
+    //TODO: Make this a proper null object
+    return new LoanPolicy(new JsonObject().put("id", id));
+  }
+
   //TODO: make this have similar signature to renew
   public Result<DateTime> calculateInitialDueDate(Loan loan) {
     return determineStrategy(false, null).calculateDueDate(loan);

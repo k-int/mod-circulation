@@ -42,14 +42,15 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
   private ServicePoint checkoutServicePoint;
   private ServicePoint checkinServicePoint;
 
-  private LoanPolicy loanPolicy;
+  private final LoanPolicy loanPolicy;
 
   public Loan(JsonObject representation) {
     this(representation, null, null, null, null, null, null, null);
   }
 
   public Loan(JsonObject representation, Item item, User user, User proxy,
-              ServicePoint checkinServicePoint, ServicePoint checkoutServicePoint, DateTime originalDueDate, LoanPolicy loanPolicy) {
+              ServicePoint checkinServicePoint, ServicePoint checkoutServicePoint,
+              DateTime originalDueDate, LoanPolicy loanPolicy) {
 
     this.representation = representation;
     this.item = item;
@@ -245,27 +246,13 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
     return loanPolicy;
   }
 
-  public Loan withLoanPolicy(LoanPolicy newloanPolicy) {
-    return new Loan(representation, item, user, proxy, checkinServicePoint, checkoutServicePoint, originalDueDate, newloanPolicy);
-  }
-
   public Loan changeLoanPolicy(LoanPolicy newLoanPolicy) {
     if(Objects.isNull(newLoanPolicy)) {
       throw new IllegalArgumentException("new loan policy cannot be null");
     }
 
-    final JsonObject newRepresentation = representation.copy();
-
-    newRepresentation.put("loanPolicyId", newLoanPolicy.getId());
-
-    return new Loan(newRepresentation, item, user, proxy, checkinServicePoint,
+    return new Loan(representation, item, user, proxy, checkinServicePoint,
       checkoutServicePoint, originalDueDate, newLoanPolicy);
-  }
-
-  private void setLoanPolicyId(String newLoanPolicyId) {
-    if (newLoanPolicyId != null) {
-      representation.put("loanPolicyId", newLoanPolicyId);
-    }
   }
 
   public ServicePoint getCheckinServicePoint() {
