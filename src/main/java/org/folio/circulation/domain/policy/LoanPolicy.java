@@ -140,7 +140,7 @@ public class LoanPolicy {
   private Result<Loan> processRenewal(Result<DateTime> calculatedDueDate, Loan loan, String comment) {
     return calculatedDueDate
       .next(dueDate -> errorWhenEarlierOrSameDueDate(loan, dueDate))
-      .map(dueDate -> loan.overrideRenewal(dueDate, getId(), comment));
+      .map(dueDate -> loan.overrideRenewal(dueDate, this, comment));
   }
 
   private Result<DateTime> errorWhenEarlierOrSameDueDate(Loan loan, DateTime proposedDueDate) {
@@ -155,7 +155,7 @@ public class LoanPolicy {
     if (overrideDueDate == null) {
       return failedValidation(errorForDueDate());
     }
-    return succeeded(loan.overrideRenewal(overrideDueDate, getId(), comment));
+    return succeeded(loan.overrideRenewal(overrideDueDate, this, comment));
   }
 
   private DueDateStrategy getRollingRenewalOverrideDueDateStrategy(DateTime systemDate) {

@@ -285,16 +285,15 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
     return changeLoanPolicy(policy);
   }
 
-  public Loan overrideRenewal(DateTime dueDate,
-                              String basedUponLoanPolicyId,
+  public Loan overrideRenewal(DateTime dueDate, LoanPolicy policy,
                               String actionComment) {
+
     changeAction("renewedThroughOverride");
-    setLoanPolicyId(basedUponLoanPolicyId);
     changeDueDate(dueDate);
     incrementRenewalCount();
     changeActionComment(actionComment);
 
-    return this;
+    return changeLoanPolicy(policy);
   }
 
   Loan checkIn(DateTime returnDate, UUID servicePointId) {
