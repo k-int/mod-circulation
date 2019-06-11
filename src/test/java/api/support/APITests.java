@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.vertx.core.json.JsonObject;
 import org.folio.circulation.support.http.client.IndividualResource;
 import org.folio.circulation.support.http.client.OkapiHttpClient;
 import org.folio.circulation.support.http.client.Response;
@@ -47,6 +46,7 @@ import api.support.fixtures.ServicePointsFixture;
 import api.support.fixtures.UsersFixture;
 import api.support.http.InterfaceUrls;
 import api.support.http.ResourceClient;
+import io.vertx.core.json.JsonObject;
 
 public abstract class APITests {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -389,7 +389,6 @@ public abstract class APITests {
       type, property, resource),
       resource.containsKey(property), is(true));
   }
-
 
   protected void hasProperty(String property, JsonObject resource, String type, Object value) {
     assertThat(String.format("%s should have an %s: %s",

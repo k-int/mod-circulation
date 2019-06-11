@@ -7,13 +7,13 @@ import static org.folio.circulation.domain.representations.LoanProperties.RETURN
 import static org.folio.circulation.domain.representations.LoanProperties.STATUS;
 import static org.folio.circulation.domain.representations.LoanProperties.SYSTEM_RETURN_DATE;
 import static org.folio.circulation.domain.representations.LoanProperties.USER_ID;
-import static org.folio.circulation.support.Result.failed;
-import static org.folio.circulation.support.Result.succeeded;
 import static org.folio.circulation.support.JsonPropertyFetcher.getDateTimeProperty;
 import static org.folio.circulation.support.JsonPropertyFetcher.getIntegerProperty;
 import static org.folio.circulation.support.JsonPropertyFetcher.getNestedStringProperty;
 import static org.folio.circulation.support.JsonPropertyFetcher.getProperty;
 import static org.folio.circulation.support.JsonPropertyWriter.write;
+import static org.folio.circulation.support.Result.failed;
+import static org.folio.circulation.support.Result.succeeded;
 import static org.folio.circulation.support.ValidationErrorFailure.failedValidation;
 
 import java.util.Objects;
@@ -84,20 +84,8 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
   }
 
   public static Loan from(JsonObject representation) {
-    return from(representation, null);
-  }
-
-  public static Loan from(JsonObject representation, Item item) {
-    return from(representation, item, null, null);
-  }
-
-  public static Loan from(JsonObject representation, Item item, User user, User proxy) {
-    return from(representation, item, user, proxy, null);
-  }
-
-  public static Loan from(JsonObject representation, Item item, User user, User proxy, DateTime oldDueDate) {
     defaultStatusAndAction(representation);
-    return new Loan(representation, item, user, proxy, null, null, oldDueDate, null);
+    return new Loan(representation, null, null, null, null, null, null, null);
   }
 
   JsonObject asJson() {
@@ -251,7 +239,11 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
       throw new IllegalArgumentException("new loan policy cannot be null");
     }
 
-    return new Loan(representation, item, user, proxy, checkinServicePoint,
+    final JsonObject newRepresentation = representation.copy();
+
+    write(newRepresentation, "loanPolicyId", newLoanPolicy.getId());
+
+    return new Loan(newRepresentation, item, user, proxy, checkinServicePoint,
       checkoutServicePoint, originalDueDate, newLoanPolicy);
   }
 
@@ -334,5 +326,10 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
 
   public DateTime getReturnDate() {
     return getDateTimeProperty(representation, RETURN_DATE);
+  }
+
+  Loan replaceRepresentation(JsonObject representation) {
+    return new Loan(representation, item, user, proxy, checkinServicePoint,
+      checkoutServicePoint, originalDueDate, loanPolicy);
   }
 }
