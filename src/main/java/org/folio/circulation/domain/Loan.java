@@ -80,9 +80,6 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
     if (proxy != null) {
       representation.put("proxyUserId", proxy.getId());
     }
-    if (loanPolicy != null) {
-      setLoanPolicyId(loanPolicy.getId());
-    }
   }
 
   public static Loan from(JsonObject representation) {
@@ -249,8 +246,20 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
   }
 
   public Loan withLoanPolicy(LoanPolicy newloanPolicy) {
-
     return new Loan(representation, item, user, proxy, checkinServicePoint, checkoutServicePoint, originalDueDate, newloanPolicy);
+  }
+
+  public Loan changeLoanPolicy(LoanPolicy newLoanPolicy) {
+    if(Objects.isNull(newLoanPolicy)) {
+      throw new IllegalArgumentException("new loan policy cannot be null");
+    }
+
+    final JsonObject newRepresentation = representation.copy();
+
+    newRepresentation.put("loanPolicyId", newLoanPolicy.getId());
+
+    return new Loan(newRepresentation, item, user, proxy, checkinServicePoint,
+      checkoutServicePoint, originalDueDate, newLoanPolicy);
   }
 
   private void setLoanPolicyId(String newLoanPolicyId) {
@@ -267,14 +276,13 @@ public class Loan implements ItemRelatedRecord, UserRelatedRecord {
     return this.checkoutServicePoint;
   }
 
-  public Loan renew(DateTime dueDate, String basedUponLoanPolicyId) {
+  public Loan renew(DateTime dueDate, LoanPolicy policy) {
     changeAction("renewed");
     removeActionComment();
-    setLoanPolicyId(basedUponLoanPolicyId);
     changeDueDate(dueDate);
     incrementRenewalCount();
 
-    return this;
+    return changeLoanPolicy(policy);
   }
 
   public Loan overrideRenewal(DateTime dueDate,

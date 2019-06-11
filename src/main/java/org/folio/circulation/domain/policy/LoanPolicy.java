@@ -94,7 +94,7 @@ public class LoanPolicy {
       errorWhenReachedRenewalLimit(loan, errors);
 
       if(errors.isEmpty()) {
-        return proposedDueDateResult.map(dueDate -> loan.renew(dueDate, getId()));
+        return proposedDueDateResult.map(dueDate -> loan.renew(dueDate, this));
       }
       else {
         return failedValidation(errors);
@@ -119,7 +119,7 @@ public class LoanPolicy {
       if (proposedDueDateResult.failed() && isFixed(loansPolicy)) {
         return overrideRenewalForDueDate(loan, overrideDueDate, comment);
       }
-      
+
       if (proposedDueDateResult.failed() && isRolling(loansPolicy)) {
         DueDateStrategy dueDateStrategy = getRollingRenewalOverrideDueDateStrategy(systemDate);
         return processRenewal(dueDateStrategy.calculateDueDate(loan), loan, comment);
