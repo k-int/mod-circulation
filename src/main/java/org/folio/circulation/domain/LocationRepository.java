@@ -75,18 +75,30 @@ public class LocationRepository {
   }
 
   private CompletableFuture<Result<Location>> loadLibrary(Location location) {
+    if(isNull(location) || isNull(location.getLibraryId())) {
+      return ofAsync(() -> null);
+    }
+
     return SingleRecordFetcher.json(librariesStorageClient, "library", response -> succeeded(null))
       .fetch(location.getLibraryId())
       .thenApply(r -> r.map(location::withLibraryRepresentation));
   }
 
   private CompletableFuture<Result<Location>> loadCampus(Location location) {
+    if(isNull(location) || isNull(location.getCampusId())) {
+      return ofAsync(() -> null);
+    }
+
     return SingleRecordFetcher.json(campusesStorageClient, "campus", response -> succeeded(null))
       .fetch(location.getCampusId())
       .thenApply(r -> r.map(location::withCampusRepresentation));
   }
 
   private CompletableFuture<Result<Location>> loadInstitution(Location location) {
+    if(isNull(location) || isNull(location.getInstitutionId())) {
+      return ofAsync(() -> null);
+    }
+
     return SingleRecordFetcher.json(institutionsStorageClient, "institution", response -> succeeded(null))
       .fetch(location.getInstitutionId())
       .thenApply(r -> r.map(location::withInstitutionRepresentation));
