@@ -1,5 +1,7 @@
 package org.folio.circulation.domain;
 
+import static java.util.Objects.isNull;
+import static org.folio.circulation.support.Result.ofAsync;
 import static org.folio.circulation.support.Result.succeeded;
 import static org.folio.circulation.support.ResultBinding.mapResult;
 
@@ -23,10 +25,11 @@ public class LocationRepository {
   private CollectionResourceClient campusesStorageClient;
   private CollectionResourceClient librariesStorageClient;
 
-  public LocationRepository(CollectionResourceClient locationsStorageClient,
-                            CollectionResourceClient institutionsStorageClient,
-                            CollectionResourceClient campusesStorageClient,
-                            CollectionResourceClient librariesStorageClient) {
+  private LocationRepository(CollectionResourceClient locationsStorageClient,
+                             CollectionResourceClient institutionsStorageClient,
+                             CollectionResourceClient campusesStorageClient,
+                             CollectionResourceClient librariesStorageClient) {
+
     this.locationsStorageClient = locationsStorageClient;
     this.institutionsStorageClient = institutionsStorageClient;
     this.campusesStorageClient = campusesStorageClient;
@@ -43,7 +46,11 @@ public class LocationRepository {
   }
 
   public CompletableFuture<Result<Location>> getLocation(Item item) {
-    return SingleRecordFetcher.json(locationsStorageClient, "locations",
+    if(isNull(item) || isNull(item.getLocationId())) {
+      return ofAsync(() -> null);
+    }
+
+    return SingleRecordFetcher.json(locationsStorageClient, "location",
       response -> succeeded(null))
       .fetch(item.getLocationId())
       .thenApply(r -> r.map(Location::from))
