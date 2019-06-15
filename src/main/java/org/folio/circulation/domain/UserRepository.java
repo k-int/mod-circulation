@@ -42,9 +42,10 @@ public class UserRepository {
   }
 
   public CompletableFuture<Result<User>> getProxyUser(UserRelatedRecord userRelatedRecord) {
-    if (userRelatedRecord.getProxyUserId() == null){
+    if (userRelatedRecord.getProxyUserId() == null) {
       return CompletableFuture.completedFuture(succeeded(null));
     }
+
     return getUser(userRelatedRecord.getProxyUserId());
   }
 
