@@ -56,49 +56,20 @@ public class ServicePointRepository {
   } 
   
   public CompletableFuture<Result<Loan>> findServicePointsForLoan(Result<Loan> loanResult) {
-    return findCheckinServicePointForLoan(loanResult)
-        .thenComposeAsync(this::findCheckoutServicePointForLoan);   
+    return fetchCheckInServicePoint(loanResult)
+      .thenComposeAsync(this::fetchCheckOutServicePoint);
   }
-  
-  private CompletableFuture<Result<Loan>> findCheckinServicePointForLoan(Result<Loan> loanResult) {
-    return loanResult.after(loan -> {
-      String checkinServicePointId = loan.getCheckInServicePointId();
-      if(checkinServicePointId == null) {
-        return completedFuture(loanResult);
-      }
-      return getServicePointById(checkinServicePointId)
-          .thenApply(servicePointResult ->
-            servicePointResult.map(servicePoint -> {
-              if(servicePoint == null) {
-                log.info("No checkin servicepoint found for loan {}", loan.getId());
-              } else {
-                log.info("Checkin servicepoint with name {} found for loan {}",
-                    servicePoint.getName(), loan.getId());
-              }
-              return loan.withCheckinServicePoint(servicePoint);
-          }));
-    });
-  }
-  
-  private CompletableFuture<Result<Loan>> findCheckoutServicePointForLoan(Result<Loan> loanResult) {
-    return loanResult.after(loan -> {
-      String checkoutServicePointId = loan.getCheckoutServicePointId();
-      if(checkoutServicePointId == null) {
-        return completedFuture(loanResult);
-      }
-      return getServicePointById(checkoutServicePointId)
-          .thenApply(servicePointResult ->
-            servicePointResult.map(servicePoint -> {
-              if(servicePoint == null) {
-                log.info("No checkout servicepoint found for loan {}", loan.getId());
-              } else {
-                log.info("Checkout servicepoint with name {} found for loan {}",
-                    servicePoint.getName(), loan.getId());
-              }
 
-              return loan.withCheckoutServicePoint(servicePoint);
-          }));
-      });
+  private CompletableFuture<Result<Loan>> fetchCheckOutServicePoint(Result<Loan> loanResult) {
+    return loanResult
+      .combineAfter(loan -> getServicePointById(loan.getCheckoutServicePointId()),
+        Loan::withCheckoutServicePoint);
+  }
+
+  private CompletableFuture<Result<Loan>> fetchCheckInServicePoint(Result<Loan> loanResult) {
+    return loanResult
+      .combineAfter(loan -> getServicePointById(loan.getCheckInServicePointId()),
+        Loan::withCheckinServicePoint);
   }
 
   public CompletableFuture<Result<MultipleRecords<Loan>>> findServicePointsForLoans(
