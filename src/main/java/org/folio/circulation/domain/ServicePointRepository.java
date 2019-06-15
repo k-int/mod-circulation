@@ -1,6 +1,7 @@
 package org.folio.circulation.domain;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.folio.circulation.support.Result.ofAsync;
 import static org.folio.circulation.support.Result.succeeded;
 
 import java.lang.invoke.MethodHandles;
@@ -31,17 +32,19 @@ public class ServicePointRepository {
   }
 
   public CompletableFuture<Result<ServicePoint>> getServicePointById(UUID id) {
-    log.info("Attempting to fetch service point with id {}", id);
-
     if(id == null) {
-      return completedFuture(succeeded(null));
+      return ofAsync(() -> null);
     }
 
     return getServicePointById(id.toString());
   }
 
   CompletableFuture<Result<ServicePoint>> getServicePointById(String id) {
-    return FetchSingleRecord.<ServicePoint>forRecord("servicepoint")
+    if(id == null) {
+      return ofAsync(() -> null);
+    }
+
+    return FetchSingleRecord.<ServicePoint>forRecord("service point")
         .using(servicePointsStorageClient)
         .mapTo(ServicePoint::new)
         .whenNotFound(succeeded(null))
